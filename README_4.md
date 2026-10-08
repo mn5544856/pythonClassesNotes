@@ -1,8 +1,12 @@
-## Lesson 31: `global` aur `nonlocal` ko Deeply Samjho
+# Python OOP — Lessons 31-40 (Roman Urdu Detailed Guide)
 
-Ab LEGB ke baad next important concept ye hai ke **scope ko sirf read nahi, modify kaise karte hain**.
+Har lesson ka code + line-by-line explanation.
 
-### 1. Normal assignment → Local
+---
+
+# Lesson 31: `global` aur `nonlocal` Deeply
+
+## 1. Normal Assignment → Local
 
 ```python
 x = 10
@@ -15,18 +19,19 @@ test()
 print(x)
 ```
 
-Output:
-
-```text
+**Output:**
+```
 20
 10
 ```
 
-Function ke andar `x = 20` ne **new local `x`** bana diya.
+**Explanation:**
+- `x = 10` → global variable
+- `x = 20` → function ke andar **naya local** variable
+- `print(x)` (andar) → local `20`
+- `print(x)` (bahar) → global `10`
 
----
-
-### 2. `global` → Global variable modify
+## 2. `global` — Global Modify
 
 ```python
 x = 10
@@ -36,23 +41,20 @@ def test():
     x = 20
 
 test()
-
 print(x)
 ```
 
-Output:
-
-```text
+**Output:**
+```
 20
 ```
 
-`global x` ka matlab:
+**Explanation:**
+- `global x` → Python ko bataya: "`x` global hai, local mat banao"
+- `x = 20` → global `x` update
+- `print(x)` → `20`
 
-> "Is function mein `x` ko local mat samjho; module/global scope wala `x` use karo."
-
----
-
-### 3. `nonlocal` → Enclosing variable modify
+## 3. `nonlocal` — Enclosing Modify
 
 ```python
 def outer():
@@ -68,37 +70,18 @@ def outer():
 outer()
 ```
 
-Output:
-
-```text
+**Output:**
+```
 20
 ```
 
-Yahan `x` global nahi hai.
-
-`x` `outer()` ke andar hai, isliye `inner()` mein:
-
-```python
-nonlocal x
-```
-
-use hua.
-
----
+**Explanation:**
+- `x = 10` → `outer()` ka local
+- `nonlocal x` → `inner()` ko bataya: "`x` enclosing function ka hai"
+- `x = 20` → `outer()` ka `x` update
+- `print(x)` → `20`
 
 ## 4. `global` vs `nonlocal`
-
-```text
-global
-   ↓
-Global scope
-
-nonlocal
-   ↓
-Nearest enclosing function scope
-```
-
-Example:
 
 ```python
 x = "GLOBAL"
@@ -117,18 +100,17 @@ outer()
 print(x)
 ```
 
-Output:
-
-```text
+**Output:**
+```
 CHANGED
 GLOBAL
 ```
 
-`nonlocal` ne `outer()` ka `x` change kiya, global ka nahi.
+**Explanation:**
+- `nonlocal x` → `outer()` ka `x` change
+- Global `x` unchanged
 
----
-
-## 5. `nonlocal` nearest enclosing scope ko target karta hai
+## 5. `nonlocal` Nearest Enclosing
 
 ```python
 def outer():
@@ -150,24 +132,20 @@ def outer():
 outer()
 ```
 
-Output:
-
-```text
+**Output:**
+```
 changed
 outer
 ```
 
-`inner()` ka `nonlocal x` **middle() wala x** change karta hai, kyun ke woh nearest enclosing `x` hai.
+**Explanation:**
+- `inner()` ka `nonlocal x` → nearest enclosing `x` (middle ka) change
+- `outer()` ka `x` unchanged
 
----
-
-## 6. `nonlocal` ke liye enclosing variable hona zaroori hai
-
-Ye invalid hai:
+## 6. `nonlocal` Bina Enclosing Variable
 
 ```python
 def outer():
-
     def inner():
         nonlocal x
         x = 10
@@ -175,21 +153,16 @@ def outer():
     inner()
 ```
 
-Error:
-
-```text
+**Error:**
+```
 SyntaxError: no binding for nonlocal 'x' found
 ```
 
-Kyun?
+**Explanation:**
+- `x` kahin enclosing function mein exist nahi karta
+- `nonlocal` fail
 
-`inner()` ke bahar kisi enclosing function mein `x` exist hi nahi karta.
-
----
-
-## 7. Mutable object ka interesting case
-
-Ye dekho:
+## 7. Mutable Object — No `nonlocal` Needed
 
 ```python
 def outer():
@@ -204,76 +177,34 @@ def outer():
 outer()
 ```
 
-Output:
-
-```text
+**Output:**
+```
 [10]
 ```
 
-Yahan `nonlocal` ki zaroorat nahi.
+**Explanation:**
+- `data.append(10)` → mutation (existing object change)
+- `nonlocal` ki zaroorat nahi
 
-Kyun?
-
-Hum `data` ko **reassign** nahi kar rahe:
-
-```python
-data = [...]
-```
-
-Hum existing list ko mutate kar rahe hain:
+## 8. Mutation vs Rebinding
 
 ```python
+# Mutation — no nonlocal
 data.append(10)
-```
 
-Lekin:
-
-```python
-def inner():
-    data = [10]
-```
-
-alag local `data` bana dega.
-
-Aur:
-
-```python
-def inner():
-    nonlocal data
-    data = [10]
-```
-
-enclosing `data` ko replace karega.
-
----
-
-## 8. Ye distinction bohat important hai
-
-```text
-Mutation:
-data.append(10)
-```
-
-→ existing object change
-
-```text
-Rebinding:
+# Rebinding — nonlocal needed
+nonlocal data
 data = [10]
 ```
 
-→ variable ko new object se bind
-
-`nonlocal`/`global` ki zaroorat **rebinding** mein hoti hai.
-
----
+**Explanation:**
+- Mutation → same object change
+- Rebinding → variable ko naye object se bind
 
 ## 9. Closure + `nonlocal`
 
-Pichli lesson ka counter ab samjho:
-
 ```python
 def counter():
-
     count = 0
 
     def increment():
@@ -282,211 +213,106 @@ def counter():
         return count
 
     return increment
-```
 
-Use:
-
-```python
 c = counter()
-
-print(c())
-print(c())
-print(c())
+print(c())   # 1
+print(c())   # 2
+print(c())   # 3
 ```
 
-Output:
+**Explanation:**
+- `count = 0` → enclosing variable
+- `nonlocal count` → modify
+- `count` → calls ke darmiyan preserve
 
-```text
-1
-2
-3
-```
-
-Yahan:
-
-```text
-counter()
-   ↓
-count = 0
-   ↓
-increment()
-   ↓
-nonlocal count
-   ↓
-count = 1
-   ↓
-count = 2
-   ↓
-count = 3
-```
-
-`count` function ke bahar directly accessible nahi, lekin closure usko remember karta hai.
-
----
-
-# 10. Closure vs Class
-
-Same counter class se:
+## 10. Closure vs Class
 
 ```python
-class Counter:
+# Closure
+def counter():
+    count = 0
+    def increment():
+        nonlocal count
+        count += 1
+        return count
+    return increment
 
+# Class
+class Counter:
     def __init__(self):
         self.count = 0
-
     def increment(self):
         self.count += 1
         return self.count
 ```
 
-Closure se:
+**Explanation:**
+- Class → state = `self.count`
+- Closure → state = enclosing variable
 
-```python
-def counter():
-
-    count = 0
-
-    def increment():
-        nonlocal count
-        count += 1
-        return count
-
-    return increment
-```
-
-Dono state maintain kar sakte hain.
-
-```text
-Class
-→ state = self.count
-
-Closure
-→ state = enclosing variable
-```
-
----
-
-# 11. Decorator mein `nonlocal`
-
-Ye especially important hai kyun ke tum decorators already padh chuke ho.
+## 11. Decorator mein `nonlocal`
 
 ```python
 from functools import wraps
 
 def count_calls(func):
-
     count = 0
 
     @wraps(func)
     def wrapper(*args, **kwargs):
         nonlocal count
-
         count += 1
-
         print("Call:", count)
-
         return func(*args, **kwargs)
 
     return wrapper
 ```
 
-Yahan:
+**Explanation:**
+- `count = 0` → enclosing
+- `nonlocal count` → modify
+- Calls ke darmiyan preserve
 
-```python
-count = 0
+## 12. LEGB + Modification
+
+```
+Local      → normal assignment
+Enclosing  → nonlocal
+Global     → global
 ```
 
-enclosing scope mein hai.
-
-`wrapper()`:
-
-```python
-nonlocal count
-```
-
-use karke usko update karta hai.
-
----
-
-# 12. `global` aur `nonlocal` ko LEGB se connect karo
-
-Ab complete picture:
-
-```text
-             LEGB
-
-L → Local
-E → Enclosing
-G → Global
-B → Built-in
-```
-
-Aur modification ke liye:
-
-```text
-Local
-  ↑
-normal assignment
-
-Enclosing
-  ↑
-nonlocal
-
-Global
-  ↑
-global
-```
-
----
-
-# 13. Ek important interview-style example
-
-Iska output predict karo:
+## 13. Interview Example 1
 
 ```python
 x = 10
 
 def outer():
     x = 20
-
     def inner():
         print(x)
-
     inner()
 
 outer()
 ```
 
-Answer:
-
-```text
+**Output:**
+```
 20
 ```
 
-Reason:
+**Explanation:**
+- `inner()` → Local nahi → Enclosing `x = 20`
 
-```text
-inner()
- ↓
-Local → x nahi
- ↓
-Enclosing → x = 20
-```
-
----
-
-Ab ye:
+## 14. Interview Example 2
 
 ```python
 x = 10
 
 def outer():
     x = 20
-
     def inner():
         global x
         x = 30
-
     inner()
     print(x)
 
@@ -494,249 +320,122 @@ outer()
 print(x)
 ```
 
-Output:
-
-```text
+**Output:**
+```
 20
 30
 ```
 
-Kyun?
+**Explanation:**
+- `global x` → global `x` target
+- `outer()` ka `x` unchanged → `20`
+- Global `x` → `30`
 
-`global x` ne `outer()` ke `x` ko target nahi kiya.
+## 15. Final Mental Model
 
-Usne directly:
-
-```text
-Global x
 ```
-
-ko target kiya.
+x = value    → Local
+global x     → Global
+nonlocal x   → Nearest enclosing
+```
 
 ---
-
-## Final mental model
-
-```text
-x = value
-→ normally current function ka Local x
-
-global x
-→ Global x
-
-nonlocal x
-→ nearest enclosing function ka x
-```
-
-Aur LEGB:
-
-```text
-Local
-  ↓
-Enclosing
-  ↓
-Global
-  ↓
-Built-in
-```
-
-**Next Lesson 32:** `namespace` aur `__dict__` — Python mein variables actually **kahan store hote hain**, aur `globals()`, `locals()`, `vars()`, `obj.__dict__` kaise kaam karte hain.
 
 # Lesson 32: Namespace aur `__dict__`
 
-Ab hum **Scope ke baad next level** par ja rahe hain:
-
-> Variable ka naam Python **kahan store karta hai**, aur `globals()`, `locals()`, `vars()` aur `__dict__` kya karte hain?
-
-Scope batata hai **name kahan search hoga**.
-Namespace batata hai **name → value mapping kahan rakhi hui hai**.
-
----
-
-## 1. Namespace kya hota hai?
-
-Simple example:
+## 1. Namespace Kya Hai?
 
 ```python
 name = "Ali"
 age = 25
 ```
 
-Python conceptually ek mapping rakhta hai:
+**Explanation:**
+- Python conceptually mapping rakhta hai:
 
-```text
+```
 name → "Ali"
 age  → 25
 ```
 
-Yani:
-
-```text
-Namespace = names → objects
-```
-
-Python mein namespace ko roughly dictionary ki tarah samajh sakte ho.
-
----
+- Namespace = names → objects
 
 ## 2. Global Namespace
 
 ```python
 name = "Ali"
 age = 25
-
 print(globals())
 ```
 
-`globals()` current module ka global namespace dictionary return karta hai.
-
-Conceptually:
-
-```python
-{
-    "name": "Ali",
-    "age": 25,
-    ...
-}
+**Output (conceptually):**
+```
+{'name': 'Ali', 'age': 25, ...}
 ```
 
-Isliye:
+**Explanation:**
+- `globals()` → module ka global namespace dictionary
+- `globals()["name"]` → `"Ali"`
 
-```python
-globals()["name"]
-```
-
-result:
-
-```text
-Ali
-```
-
-Aur theoretically:
-
-```python
-globals()["age"] = 30
-```
-
-ke baad:
-
-```python
-print(age)
-```
-
-output:
-
-```text
-30
-```
-
----
-
-# 3. `locals()`
-
-Function ke andar:
+## 3. `locals()`
 
 ```python
 def test():
     name = "Ali"
     age = 25
-
     print(locals())
 
 test()
 ```
 
-Conceptually output:
-
-```python
-{
-    "name": "Ali",
-    "age": 25
-}
+**Output:**
+```
+{'name': 'Ali', 'age': 25}
 ```
 
-Yani:
+**Explanation:**
+- `locals()` → current local namespace
 
-```text
-globals()
-→ global namespace
-
-locals()
-→ current local namespace
-```
-
----
-
-# 4. `globals()` vs `locals()`
+## 4. `globals()` vs `locals()`
 
 ```python
 name = "Global"
 
 def test():
     name = "Local"
-
     print("locals:", locals())
     print("globals:", globals()["name"])
 
 test()
 ```
 
-Output conceptually:
-
-```text
+**Output:**
+```
 locals: {'name': 'Local'}
 globals: Global
 ```
 
-Dono mein `name` hai, lekin dono **different namespaces** hain.
+**Explanation:**
+- Dono mein `name` hai, lekin different namespaces
 
-```text
-Global Namespace
-┌─────────────────┐
-│ name → Global   │
-└─────────────────┘
-
-Local Namespace
-┌─────────────────┐
-│ name → Local    │
-└─────────────────┘
-```
-
----
-
-# 5. `__dict__`
-
-Ab OOP se connect karo.
-
-Class:
+## 5. Class ka `__dict__`
 
 ```python
 class Employee:
     company = "ABC"
-```
 
-Class ke paas namespace hota hai.
-
-Usko dekh sakte ho:
-
-```python
 print(Employee.__dict__)
 ```
 
-Ismein roughly:
-
-```python
-{
-    "company": "ABC",
-    ...
-}
+**Output (conceptually):**
+```
+{'company': 'ABC', ...}
 ```
 
-mil jayega.
+**Explanation:**
+- `__dict__` → class namespace
 
----
-
-# 6. Object ka `__dict__`
+## 6. Object ka `__dict__`
 
 ```python
 class Employee:
@@ -745,139 +444,52 @@ class Employee:
         self.salary = salary
 
 emp = Employee("Ali", 5000)
-
 print(emp.__dict__)
 ```
 
-Output:
+**Output:**
+```
+{'name': 'Ali', 'salary': 5000}
+```
+
+**Explanation:**
+- `self.name = "Ali"` → object namespace mein store
+- `emp.__dict__` → instance attributes
+
+## 7. `__dict__` Dictionary Ki Tarah
 
 ```python
-{
-    'name': 'Ali',
-    'salary': 5000
-}
+print(emp.name)              # Ali
+print(emp.__dict__["name"])  # Ali
 ```
 
-Yahan bohat important connection hai:
+**Explanation:**
+- Dono same value
+- `emp.__dict__` → instance namespace
 
-```text
-self.name = "Ali"
-       ↓
-object ke namespace mein
-       ↓
-"name" → "Ali"
-```
-
----
-
-# 7. `__dict__` ko dictionary ki tarah samjho
-
-```python
-emp.__dict__
-```
-
-roughly:
-
-```python
-{
-    "name": "Ali",
-    "salary": 5000
-}
-```
-
-Isliye:
-
-```python
-emp.name
-```
-
-conceptually attribute lookup karta hai.
-
-Aur:
-
-```python
-emp.__dict__["name"]
-```
-
-directly instance namespace se value dekh raha hai.
-
-Example:
-
-```python
-print(emp.name)
-print(emp.__dict__["name"])
-```
-
-Dono:
-
-```text
-Ali
-Ali
-```
-
----
-
-# 8. `__dict__` modify bhi kar sakte ho
+## 8. `__dict__` Modify
 
 ```python
 emp.__dict__["salary"] = 7000
-
-print(emp.salary)
+print(emp.salary)   # 7000
 ```
 
-Output:
+**Explanation:**
+- Namespace mein direct value change
+- `emp.salary` → `7000`
 
-```text
-7000
-```
-
-Kyun?
-
-Object namespace mein:
-
-```text
-salary → 7000
-```
-
-ho gaya.
-
----
-
-# 9. Naya attribute manually add
+## 9. Naya Attribute Manually
 
 ```python
 emp.__dict__["department"] = "HVAC"
-
-print(emp.department)
+print(emp.department)   # HVAC
 ```
 
-Output:
+**Explanation:**
+- Namespace mein entry add
+- Attribute accessible
 
-```text
-HVAC
-```
-
-Humne directly:
-
-```python
-emp.department = "HVAC"
-```
-
-nahi likha, lekin namespace mein entry add kar di.
-
----
-
-# 10. `vars()`
-
-Python mein:
-
-```python
-vars(obj)
-```
-
-bohat commonly `obj.__dict__` ke equivalent hota hai, jab object ka `__dict__` available ho.
-
-Example:
+## 10. `vars()`
 
 ```python
 class Employee:
@@ -885,35 +497,20 @@ class Employee:
         self.name = name
 
 emp = Employee("Ali")
-
 print(vars(emp))
 ```
 
-Output:
-
-```python
+**Output:**
+```
 {'name': 'Ali'}
 ```
 
-So:
+**Explanation:**
+- `vars(emp)` ≈ `emp.__dict__`
 
-```python
-vars(emp)
+## 11. `vars()` aur `__dict__`
+
 ```
-
-≈
-
-```python
-emp.__dict__
-```
-
----
-
-# 11. `vars()` aur `__dict__`
-
-Simple mental model:
-
-```text
 vars(emp)
     ↓
 emp.__dict__
@@ -921,39 +518,27 @@ emp.__dict__
 instance namespace
 ```
 
-Lekin yaad rakho: **har object ke paas `__dict__` zaroori nahi hota**. `__slots__` jaisi techniques se objects ke paas normal instance dictionary nahi bhi ho sakti.
-
----
-
-# 12. Class ka `__dict__`
+## 12. Class ka `__dict__` (Methods)
 
 ```python
 class Equipment:
-
     category = "HVAC"
 
     def start(self):
         print("Starting")
-```
 
-Ab:
-
-```python
 print(Equipment.__dict__)
 ```
 
-mein roughly:
-
-```text
-category → "HVAC"
-start    → function object
+**Output (conceptually):**
+```
+{'category': 'HVAC', 'start': <function ...>, ...}
 ```
 
-Yani class namespace mein methods bhi stored hote hain.
+**Explanation:**
+- Class namespace mein methods bhi store
 
----
-
-# 13. Instance aur Class namespace different hain
+## 13. Instance vs Class Namespace
 
 ```python
 class Employee:
@@ -965,62 +550,13 @@ class Employee:
 emp = Employee("Ali")
 ```
 
-Ab:
+**Explanation:**
+- `Employee.__dict__` → `company`, `__init__`, etc.
+- `emp.__dict__` → `name`
 
-```python
-print(Employee.__dict__)
+## 14. Attribute Lookup
+
 ```
-
-mein:
-
-```text
-company
-__init__
-...
-```
-
-Aur:
-
-```python
-print(emp.__dict__)
-```
-
-mein:
-
-```text
-name
-```
-
-So:
-
-```text
-Class namespace
-┌────────────────────┐
-│ company → ABC      │
-│ __init__ → method  │
-└────────────────────┘
-
-Instance namespace
-┌────────────────────┐
-│ name → Ali         │
-└────────────────────┘
-```
-
----
-
-# 14. Attribute lookup se connection
-
-Ab Lesson 13 aur 14 connect karo.
-
-```python
-emp.name
-```
-
-Python roughly instance attribute ko search karta hai.
-
-Simplified view:
-
-```text
 emp.name
    ↓
 data descriptor?
@@ -1030,278 +566,106 @@ emp.__dict__
 class / MRO
 ```
 
-Isliye:
+**Explanation:**
+- `emp.__dict__["name"]` → instance value
 
-```python
-emp.__dict__["name"]
-```
-
-instance ka actual stored value de sakta hai.
-
----
-
-# 15. Class variable example
+## 15. Class Variable Example
 
 ```python
 class Employee:
     company = "ABC"
 
 emp = Employee()
+print(emp.__dict__)   # {}
+print(emp.company)    # ABC
 ```
 
-Ab:
+**Explanation:**
+- `company` instance namespace mein nahi
+- Python class mein search karta hai
 
-```python
-print(emp.__dict__)
-```
-
-Output:
-
-```python
-{}
-```
-
-Lekin:
-
-```python
-print(emp.company)
-```
-
-Output:
-
-```text
-ABC
-```
-
-Kyun?
-
-`company` instance namespace mein nahi hai.
-
-Python class mein search karta hai:
-
-```text
-emp.company
-    ↓
-emp.__dict__
-    ↓
-company nahi
-    ↓
-Employee.__dict__
-    ↓
-company = "ABC"
-```
-
----
-
-# 16. Instance variable add karo
+## 16. Instance Variable Add
 
 ```python
 emp.company = "XYZ"
+print(emp.__dict__)   # {'company': 'XYZ'}
 ```
 
-Ab:
+**Explanation:**
+- Instance ka apna `company` ban gaya
+- `Employee.company` → `ABC`
+- `emp.company` → `XYZ`
 
-```python
-print(emp.__dict__)
+## 17. Scope vs Namespace
+
+```
+Scope     → Name kahan accessible?
+Namespace → Name → object mapping kahan?
 ```
 
-Output:
-
-```python
-{'company': 'XYZ'}
-```
-
-Ab instance ka apna `company` ban gaya.
-
-```text
-Employee.company
-→ ABC
-
-emp.company
-→ XYZ
-```
-
-Ye wahi **shadowing** concept hai jo humne LEGB mein dekha tha, lekin yahan attribute lookup ke context mein.
-
----
-
-# 17. Namespace aur Scope same cheez nahi
-
-Ye distinction important hai.
-
-### Scope
-
-Batata hai:
-
-> Name **kahan accessible / resolved** hai?
-
-### Namespace
-
-Batata hai:
-
-> Names aur objects ki **mapping kahan maintained** hai?
-
-Example:
-
-```python
-x = 10
-
-def test():
-    x = 20
-```
-
-Yahan:
-
-```text
-Global namespace
-x → 10
-
-Local namespace
-x → 20
-```
-
-Scope rules decide karte hain ke `x` ko access karte waqt kaunsa namespace check hoga.
-
----
-
-# 18. Closure mein namespace
-
-Ab closure:
+## 18. Closure mein Namespace
 
 ```python
 def outer():
-
     x = 10
 
     def inner():
         return x
 
     return inner
-```
 
-`inner` ke paas `x` ka reference capture ho jata hai.
-
-Isko inspect karne ke liye:
-
-```python
 f = outer()
-
-print(f.__code__.co_freevars)
-print(f.__closure__)
+print(f.__code__.co_freevars)   # ('x',)
+print(f.__closure__)             # (<cell ...>,)
 ```
 
-Conceptually:
+**Explanation:**
+- `co_freevars` → free variable names
+- `__closure__` → captured value
 
-```text
-co_freevars
-→ ('x',)
-
-closure
-→ captured value
-```
-
-Ye wahi closure concept hai jo humne Lesson 29 mein padha tha.
-
----
-
-# 19. `globals()` practical use
-
-Kabhi-kabhi dynamic code/frameworks mein global namespace inspect kiya jata hai:
+## 19. `globals()` Practical
 
 ```python
 x = 100
+print(globals()["x"])   # 100
 
-print(globals()["x"])
-```
-
-Output:
-
-```text
-100
-```
-
-Aur:
-
-```python
 globals()["y"] = 200
-
-print(y)
+print(y)                # 200
 ```
 
-Output:
+**Explanation:**
+- Global namespace access/modify
 
-```text
-200
-```
-
-Lekin normal application code mein variables ko is tarah dynamically manipulate karna usually unnecessary hota hai.
-
----
-
-# 20. `locals()` practical use
-
-Debugging ke liye:
+## 20. `locals()` Practical
 
 ```python
 def calculate(a, b):
-
     total = a + b
     result = total * 2
-
     print(locals())
 
 calculate(10, 20)
 ```
 
-Conceptually:
-
-```python
-{
-    'a': 10,
-    'b': 20,
-    'total': 30,
-    'result': 60
-}
+**Output:**
+```
+{'a': 10, 'b': 20, 'total': 30, 'result': 60}
 ```
 
-Ye debugging mein useful ho sakta hai.
+**Explanation:**
+- Debugging ke liye useful
 
----
-
-# 21. `dir()` vs `__dict__`
-
-Ye dono confuse mat karna.
+## 21. `dir()` vs `__dict__`
 
 ```python
-dir(emp)
+print(dir(emp))      # Zyada names (inherited bhi)
+print(emp.__dict__)  # Directly stored attributes
 ```
 
-available/relevant attribute names ki list deta hai.
-
-```python
-emp.__dict__
-```
-
-instance namespace mein actually stored attributes deta hai.
-
-Example:
-
-```python
-print(dir(emp))
-print(emp.__dict__)
-```
-
-`dir()` bohat zyada names dikha sakta hai, including inherited attributes.
-
-`__dict__` normally instance ke directly stored attributes dikhata hai.
-
----
-
-# 22. HVAC example
+## 22. HVAC Example
 
 ```python
 class AHU:
-
     system_type = "HVAC"
 
     def __init__(self, equipment_id, temperature):
@@ -1309,103 +673,33 @@ class AHU:
         self.temperature = temperature
 
 ahu = AHU("AHU-01", 22)
-```
-
-Instance namespace:
-
-```python
 print(ahu.__dict__)
 ```
 
-Output:
-
-```python
-{
-    'equipment_id': 'AHU-01',
-    'temperature': 22
-}
+**Output:**
+```
+{'equipment_id': 'AHU-01', 'temperature': 22}
 ```
 
-Class namespace:
+**Explanation:**
+- Instance namespace → `equipment_id`, `temperature`
 
-```python
-print(AHU.__dict__)
+## 23. Complete Connection
+
 ```
-
-mein:
-
-```text
-system_type
-__init__
-...
+Scope → Name kahan search?
+LEGB  → L → E → G → B
+Namespace → Name → Object mapping
+globals() → Global namespace
+locals()  → Current local namespace
+__dict__  → Object/Class namespace
 ```
 
 ---
-
-# 23. Complete connection
-
-Ab tak ke lessons ko connect karo:
-
-```text
-Scope
-  ↓
-Name kahan search hoga?
-
-LEGB
-  ↓
-Local → Enclosing → Global → Built-in
-
-Namespace
-  ↓
-Name → Object mapping
-
-globals()
-  ↓
-Global namespace
-
-locals()
-  ↓
-Current local namespace
-
-__dict__
-  ↓
-Object/Class namespace
-
-Attribute lookup
-  ↓
-descriptor → instance → class/MRO
-```
-
-### Golden mental model
-
-```text
-VARIABLE NAME
-     │
-     ▼
-NAMESPACE
-(name → object)
-     │
-     ▼
-SCOPE RULES
-     │
-     ▼
-Python decides
-kaunsa name/value use karna hai
-```
-
-**Next Lesson 33:** `__slots__` — `__dict__` ke saath iska relation, memory optimization, fixed attributes, aur kyun kuch Python objects ke paas `__dict__` nahi hota.
 
 # Lesson 33: `__slots__`
 
-Ab hum `__dict__` ke opposite concept ko samjhte hain:
-
-> **`__slots__` object ke allowed attributes ko define karta hai aur normal instance `__dict__` ko hata sakta hai.**
-
-Ye especially useful hai jab **bohat saare objects** create karne hon aur memory optimize karni ho.
-
----
-
-## 1. Normal class mein kya hota hai?
+## 1. Normal Class
 
 ```python
 class Employee:
@@ -1414,27 +708,18 @@ class Employee:
         self.salary = salary
 
 emp = Employee("Ali", 5000)
-```
-
-Normally:
-
-```python
 print(emp.__dict__)
 ```
 
-Output:
-
-```python
+**Output:**
+```
 {'name': 'Ali', 'salary': 5000}
 ```
 
-Yani object ke paas apna `__dict__` hota hai.
+**Explanation:**
+- Object ke paas `__dict__` hai
 
----
-
-# 2. `__slots__`
-
-Ab:
+## 2. `__slots__`
 
 ```python
 class Employee:
@@ -1443,66 +728,21 @@ class Employee:
     def __init__(self, name, salary):
         self.name = name
         self.salary = salary
-```
 
-Object:
-
-```python
 emp = Employee("Ali", 5000)
-```
-
-Ab normally:
-
-```python
 print(emp.__dict__)
 ```
 
-par:
-
-```text
+**Output:**
+```
 AttributeError
 ```
 
-kyun ke is class ke instances ke paas normal `__dict__` nahi hota.
+**Explanation:**
+- `__slots__` → normal `__dict__` nahi
+- Allowed attributes: `name`, `salary`
 
----
-
-# 3. `__slots__` mein kya define kiya?
-
-```python
-__slots__ = ("name", "salary")
-```
-
-Matlab:
-
-> Is class ke normal instances ke liye ye attributes allowed hain.
-
-```text
-Employee
-   │
-   ├── name
-   └── salary
-```
-
----
-
-# 4. Extra attribute add karne ki koshish
-
-Normal class:
-
-```python
-class Employee:
-    def __init__(self):
-        self.name = "Ali"
-
-emp = Employee()
-
-emp.department = "HVAC"
-```
-
-Ye normally kaam karega.
-
-Lekin slots:
+## 3. Extra Attribute Add
 
 ```python
 class Employee:
@@ -1512,139 +752,63 @@ class Employee:
         self.name = "Ali"
 
 emp = Employee()
-
 emp.department = "HVAC"
 ```
 
-Error:
-
-```text
+**Error:**
+```
 AttributeError
 ```
 
-Kyun?
+**Explanation:**
+- `department` slots mein nahi
+- Extra attributes allowed nahi
 
-`department` slots mein defined nahi hai.
+## 4. Benefit
 
----
-
-# 5. Iska main benefit
-
-Agar tumhare paas:
-
-```text
-10 objects
+```
+10 objects → chhota difference
+100,000 objects → memory overhead important
 ```
 
-hain, difference chhota ho sakta hai.
+**Explanation:**
+- `__slots__` → per-instance memory reduce
 
-Lekin agar:
+## 5. Normal vs Slots
 
-```text
-100,000
-1,000,000
+**Normal:**
+```
+Object → __dict__ → equipment_id, temperature
 ```
 
-objects hain, to per-instance memory overhead important ho sakta hai.
-
-`__slots__` normal instance dictionary ko avoid karke memory overhead reduce kar sakta hai.
-
----
-
-# 6. Normal vs slots
-
-### Normal
-
-```python
-class Equipment:
-    def __init__(self, equipment_id, temperature):
-        self.equipment_id = equipment_id
-        self.temperature = temperature
+**Slots:**
+```
+Object → fixed slots → equipment_id, temperature
 ```
 
-Conceptually:
-
-```text
-Object
-  ↓
-__dict__
-  ├── equipment_id
-  └── temperature
-```
-
-### `__slots__`
-
-```python
-class Equipment:
-    __slots__ = ("equipment_id", "temperature")
-
-    def __init__(self, equipment_id, temperature):
-        self.equipment_id = equipment_id
-        self.temperature = temperature
-```
-
-Conceptually:
-
-```text
-Object
-  ↓
-fixed slot storage
-  ├── equipment_id
-  └── temperature
-```
-
----
-
-# 7. `__slots__` = private nahi
-
-Ye bohat important hai.
+## 6. `__slots__` Private Nahi
 
 ```python
 class Employee:
     __slots__ = ("salary",)
+
+emp = Employee()
+emp.salary = 5000    # OK
+print(emp.salary)    # 5000
 ```
 
-Iska matlab ye nahi:
+**Explanation:**
+- `__slots__` → private nahi
+- Purpose: allowed attributes, memory
 
-> salary private hai.
+## 7. `__slots__` Security Nahi
 
-Tum phir bhi:
-
-```python
-emp.salary
+```
+__slots__ → security boundary nahi
+Encapsulation → separate concept
 ```
 
-access kar sakte ho.
-
-`__slots__` ka purpose mainly:
-
-* allowed attributes define karna
-* instance `__dict__` avoid karna
-* memory overhead reduce karna
-* accidental arbitrary attributes ko prevent karna
-
----
-
-# 8. `__slots__` security mechanism nahi
-
-Example:
-
-```python
-class Employee:
-    __slots__ = ("salary",)
-```
-
-Iska matlab **security boundary** nahi hai.
-
-Ye encapsulation ka replacement bhi nahi.
-
-Agar sensitive data protect karna ho to `__slots__` us purpose ke liye nahi bana.
-
----
-
-# 9. `__slots__` + inheritance
-
-Ye thora important hai.
+## 8. `__slots__` + Inheritance
 
 ```python
 class Employee:
@@ -1654,28 +818,10 @@ class Manager(Employee):
     __slots__ = ("department",)
 ```
 
-Ab Manager ke paas:
+**Explanation:**
+- `Manager` ke paas `name` + `department` dono
 
-```text
-Employee
- └── name
-
-Manager
- └── department
-```
-
-dono slots available hain.
-
-```python
-manager = Manager()
-
-manager.name = "Ali"
-manager.department = "HVAC"
-```
-
----
-
-# 10. Agar child mein `__slots__` na ho?
+## 9. Child mein `__slots__` Na Ho
 
 ```python
 class Employee:
@@ -1685,127 +831,52 @@ class Manager(Employee):
     pass
 ```
 
-Yahan child class ka behavior important hai: `Manager` instances ko normal `__dict__` mil sakta hai.
+**Explanation:**
+- `Manager` instances ko normal `__dict__` mil sakta hai
+- Consistent slots ke liye child mein bhi define karo
 
-Isliye agar slots ko inheritance hierarchy mein consistently use karna hai, child classes mein bhi appropriate `__slots__` define karna chahiye.
-
----
-
-# 11. Empty `__slots__`
-
-Kabhi:
-
-```python
-class Base:
-    __slots__ = ()
-```
-
-use kiya jata hai.
-
-Iska matlab:
-
-> Is class ke direct instances ke liye additional instance attributes ke slots define nahi kiye gaye.
-
-Example:
+## 10. Empty `__slots__`
 
 ```python
 class Base:
     __slots__ = ()
 
 obj = Base()
+obj.x = 10   # Error
 ```
 
-Ab:
+**Explanation:**
+- Koi additional slot nahi
+- Extra attributes allowed nahi
 
-```python
-obj.x = 10
-```
-
-allowed nahi hoga.
-
----
-
-# 12. `__slots__` mein `__dict__` explicitly add kar sakte ho
-
-Agar tum chahte ho ke slots bhi hon aur arbitrary attributes bhi allowed hon:
+## 11. `__slots__` + `__dict__`
 
 ```python
 class Employee:
     __slots__ = ("name", "salary", "__dict__")
-```
 
-Ab:
-
-```python
 emp = Employee()
-
 emp.name = "Ali"
-emp.salary = 5000
-emp.department = "HVAC"
+emp.department = "HVAC"   # OK
 ```
 
-`department` possible hai kyun ke `__dict__` available hai.
+**Explanation:**
+- `__dict__` explicitly add
+- Dynamic attributes possible
+- Lekin memory benefit reduce
 
-So:
-
-```text
-__slots__
-+
-__dict__
-=
-fixed slots + dynamic attributes
-```
-
-Lekin phir `__dict__` ka memory-saving benefit partly reduce ho jata hai.
-
----
-
-# 13. `__weakref__`
-
-Advanced point:
-
-Kuch classes ko weak references support karne ke liye `__weakref__` slot ki zaroorat hoti hai, depending on inheritance/design.
-
-Example:
+## 12. `__weakref__`
 
 ```python
 class Employee:
     __slots__ = ("name", "__weakref__")
 ```
 
-Ab object weak-referenceable ho sakta hai.
+**Explanation:**
+- Weak references support
+- Advanced topic
 
-Abhi ke liye isko sirf itna yaad rakho:
-
-```text
-__weakref__
-→ weak reference support
-```
-
-Weak references ko baad mein separately detail mein samajhna better hai.
-
----
-
-# 14. HVAC example
-
-Normal:
-
-```python
-class Sensor:
-    def __init__(self, point_id, temperature):
-        self.point_id = point_id
-        self.temperature = temperature
-```
-
-Agar tumhare paas:
-
-```text
-100,000 sensors
-```
-
-ke objects hain, unnecessary per-object dictionary overhead memory consume kar sakta hai.
-
-Slots:
+## 13. HVAC Example
 
 ```python
 class Sensor:
@@ -1816,13 +887,10 @@ class Sensor:
         self.temperature = temperature
 ```
 
-Ye high-volume object models mein useful ho sakta hai.
+**Explanation:**
+- 100,000 sensors → memory overhead reduce
 
----
-
-# 15. `__slots__` aur `@property`
-
-Dono ek saath use ho sakte hain.
+## 14. `__slots__` + `@property`
 
 ```python
 class Temperature:
@@ -1839,33 +907,16 @@ class Temperature:
     def value(self, value):
         if value < -273.15:
             raise ValueError("Invalid temperature")
-
         self._value = value
 ```
 
-Yahan:
+**Explanation:**
+- `__slots__` → storage control
+- `@property` → access/validation control
 
-```text
-__slots__
-→ storage control
+## 15. `__slots__` + Descriptor
 
-@property
-→ access/validation control
 ```
-
-Dono ka purpose different hai.
-
----
-
-# 16. `__slots__` aur Descriptor ka connection
-
-Ye tumhare Lesson 14 se connect hota hai.
-
-`__slots__` internally descriptor-based machinery use karta hai for slot attributes.
-
-Conceptually:
-
-```text
 __slots__
     ↓
 slot descriptors
@@ -1873,135 +924,48 @@ slot descriptors
 attribute access/storage
 ```
 
-Isliye `__slots__` samajhne ke baad descriptors ka concept aur clear hota hai.
+## 16. `__dict__` vs `__slots__`
+
+| Feature | Normal | `__slots__` |
+|---------|--------|-------------|
+| Instance `__dict__` | Yes | No |
+| Arbitrary attributes | Yes | No |
+| Memory | Higher | Lower |
+| Fixed layout | No | Yes |
+
+## 17. Faster Nahi Automatically
+
+```
+__slots__ → primarily memory optimization
+```
+
+## 18. Mental Model
+
+**Normal:**
+```
+emp → __dict__ → name, salary
+```
+
+**Slots:**
+```
+emp → name slot, salary slot
+```
+
+## 19. Scope → Namespace → `__dict__` → `__slots__`
+
+```
+Scope → accessible?
+LEGB → search order
+Namespace → name → object
+__dict__ → dynamic namespace
+__slots__ → fixed storage
+```
 
 ---
-
-# 17. `__dict__` vs `__slots__`
-
-| Feature                   | Normal class   | `__slots__`              |
-| ------------------------- | -------------- | ------------------------ |
-| Instance `__dict__`       | Usually yes    | Usually no               |
-| Arbitrary new attributes  | Yes            | No                       |
-| Memory overhead           | Usually higher | Often lower              |
-| Fixed attribute layout    | No             | Yes                      |
-| Attribute typo protection | No             | Often yes                |
-| `@property`               | Yes            | Yes                      |
-| Inheritance               | Yes            | Yes, with considerations |
-
----
-
-# 18. Important: `__slots__` automatically faster nahi
-
-Common misconception:
-
-> "`__slots__` use karunga to Python har case mein faster ho jayega."
-
-Aisa guarantee nahi hai.
-
-Primary reason:
-
-```text
-memory overhead reduce karna
-```
-
-Attribute access bhi kuch situations mein beneficial ho sakta hai, lekin `__slots__` ko primarily **memory/layout optimization** samjho.
-
----
-
-# 19. Normal object vs slots mental model
-
-### Normal
-
-```text
-emp
- │
- └── __dict__
-       │
-       ├── name → "Ali"
-       └── salary → 5000
-```
-
-### Slots
-
-```text
-emp
- │
- ├── name slot → "Ali"
- └── salary slot → 5000
-```
-
-Isliye:
-
-```python
-emp.__dict__
-```
-
-normal class mein mil sakta hai,
-
-lekin slots-only class mein nahi.
-
----
-
-# 20. Scope → Namespace → `__dict__` → `__slots__`
-
-Ab hamari lessons ka connection:
-
-```text
-Scope
-  ↓
-name kahan accessible?
-
-LEGB
-  ↓
-name kahan search hoga?
-
-Namespace
-  ↓
-name → object mapping
-
-__dict__
-  ↓
-object/class ka dynamic namespace
-
-__slots__
-  ↓
-instance storage ko fixed slots ki taraf le jata hai
-```
-
-### Ek line mein:
-
-> **`__dict__` dynamic attribute storage deta hai, jab ke `__slots__` predefined attributes ke liye fixed storage structure provide karta hai aur normal instance `__dict__` ko avoid kar sakta hai.**
-
-**Next Lesson 34:** Python ka **MRO + `super()` deeply** — multiple inheritance mein Python parent methods ko kis order mein search karta hai, `super()` actually kya karta hai, aur diamond inheritance kaise solve hoti hai.
 
 # Lesson 34: MRO + `super()` Deeply
 
-Ab hum **Inheritance ka advanced part** start karte hain.
-
-Do concepts bohat important hain:
-
-```text
-MRO
-↓
-Method Resolution Order
-
-super()
-↓
-MRO ke according next class ko call karta hai
-```
-
----
-
-## 1. MRO kya hai?
-
-MRO ka full form:
-
-> **Method Resolution Order**
-
-Jab Python ko kisi method ya attribute ko find karna hota hai, especially inheritance mein, Python ek specific order follow karta hai.
-
-Example:
+## 1. MRO
 
 ```python
 class Animal:
@@ -2015,93 +979,43 @@ dog = Dog()
 dog.speak()
 ```
 
-Python search karega:
-
-```text
-Dog
- ↓
-Animal
- ↓
-object
+**Output:**
 ```
-
-`Dog` mein `speak()` nahi mila.
-
-`Animal` mein mil gaya.
-
-Output:
-
-```text
 Animal
 ```
 
----
+**Explanation:**
+- MRO: `Dog → Animal → object`
+- `Dog` mein nahi mila → `Animal` mein mila
 
-# 2. MRO directly dekho
-
-Python mein:
+## 2. MRO Dekho
 
 ```python
 print(Dog.mro())
 ```
 
-Conceptually:
-
-```text
-[
-    Dog,
-    Animal,
-    object
-]
+**Output:**
+```
+[<class 'Dog'>, <class 'Animal'>, <class 'object'>]
 ```
 
-Ya:
-
-```python
-print(Dog.__mro__)
-```
-
-same inheritance resolution chain deta hai.
-
----
-
-# 3. `object` kya hai?
-
-Python 3 mein normal classes ultimately `object` se derive hoti hain.
+## 3. `object`
 
 ```python
 class Animal:
     pass
 ```
 
-Conceptually:
-
+**Conceptually:**
 ```python
 class Animal(object):
     pass
 ```
 
-Isliye:
+**Explanation:**
+- Python 3 mein sab classes `object` se derive
 
-```text
-Dog
- ↓
-Animal
- ↓
-object
-```
-
-MRO ka end normally:
-
-```text
-object
-```
-
-hota hai.
-
----
-
-# 4. Method overriding + MRO
+## 4. Method Overriding + MRO
 
 ```python
 class Animal:
@@ -2111,40 +1025,21 @@ class Animal:
 class Dog(Animal):
     def speak(self):
         print("Dog")
-```
 
-Ab:
-
-```python
 dog = Dog()
 dog.speak()
 ```
 
-Output:
-
-```text
+**Output:**
+```
 Dog
 ```
 
-MRO:
+**Explanation:**
+- MRO: `Dog → Animal → object`
+- `Dog.speak()` mil gaya → stop
 
-```text
-Dog
- ↓
-Animal
- ↓
-object
-```
-
-Python pehle `Dog` check karta hai.
-
-`Dog.speak()` mil gaya.
-
-Search stop.
-
----
-
-# 5. `super()` ka basic concept
+## 5. `super()`
 
 ```python
 class Animal:
@@ -2155,57 +1050,27 @@ class Dog(Animal):
     def speak(self):
         print("Dog")
         super().speak()
-```
 
-Ab:
-
-```python
 dog = Dog()
 dog.speak()
 ```
 
-Output:
-
-```text
+**Output:**
+```
 Dog
 Animal
 ```
 
-Yahan:
+**Explanation:**
+- `super().speak()` → MRO mein next `speak()`
 
-```python
-super().speak()
+## 6. `super()` = Parent Nahi
+
+```
+super() → MRO mein current class ke baad next implementation
 ```
 
-ka matlab simply:
-
-> "Mujhe MRO ke according **next appropriate implementation** ka `speak()` do."
-
----
-
-# 6. Important: `super()` ka matlab "parent" exactly nahi
-
-Beginners usually samajhte hain:
-
-```python
-super()
-```
-
-=
-
-```text
-parent class
-```
-
-Ye **simple single inheritance mein aksar aisa lagta hai**, lekin technically:
-
-> `super()` MRO mein current class ke baad wali class ko search karta hai.
-
-Ye difference multiple inheritance mein bohat important hai.
-
----
-
-# 7. Simple inheritance mein
+## 7. Simple Inheritance
 
 ```python
 class A:
@@ -2218,31 +1083,15 @@ class B(A):
         super().show()
 ```
 
-MRO:
-
-```text
-B
-↓
-A
-↓
-object
+**MRO:**
+```
+B → A → object
 ```
 
-`super()` from `B`:
+**Explanation:**
+- `super()` from B → A
 
-```text
-B ke baad MRO mein
-↓
-A
-```
-
-Isliye `A.show()` execute hota hai.
-
----
-
-# 8. `super()` with `__init__`
-
-Ye bohat common pattern hai:
+## 8. `super()` + `__init__`
 
 ```python
 class Employee:
@@ -2253,78 +1102,32 @@ class Manager(Employee):
     def __init__(self, name, department):
         super().__init__(name)
         self.department = department
-```
 
-Create:
-
-```python
 manager = Manager("Ali", "HVAC")
+print(manager.name)        # Ali
+print(manager.department)  # HVAC
 ```
 
-Ab:
-
-```python
-print(manager.name)
-print(manager.department)
+**Flow:**
 ```
-
-Output:
-
-```text
-Ali
-HVAC
-```
-
-Flow:
-
-```text
 Manager.__init__()
-       ↓
+    ↓
 super().__init__()
-       ↓
+    ↓
 Employee.__init__()
-       ↓
+    ↓
 self.name = "Ali"
-       ↓
-back to Manager
-       ↓
+    ↓
 self.department = "HVAC"
 ```
 
----
+## 9. `super()` ka Fayda
 
-# 9. `super()` ka fayda
+- Parent initialization reuse
+- Code duplication avoid
+- Future changes automatically
 
-Agar `super()` use na karo:
-
-```python
-class Manager(Employee):
-    def __init__(self, name, department):
-        self.name = name
-        self.department = department
-```
-
-Ye bhi kaam kar sakta hai.
-
-Lekin parent initialization ki logic duplicate ho jayegi.
-
-Agar parent mein future mein:
-
-```python
-self.employee_id = ...
-self.name = ...
-self.status = ...
-```
-
-add hua, child manually update karna padega.
-
-`super()` code reuse karta hai.
-
----
-
-# 10. Multiple inheritance
-
-Ab interesting part.
+## 10. Multiple Inheritance
 
 ```python
 class A:
@@ -2345,99 +1148,37 @@ class D(B, C):
     def show(self):
         print("D")
         super().show()
-```
 
-Ab:
-
-```python
 d = D()
 d.show()
 ```
 
-Output:
-
-```text
+**Output:**
+```
 D
 B
 C
 A
 ```
 
-Ye beginners ke liye surprising hota hai.
+**Explanation:**
+- MRO: `D → B → C → A → object`
+- `super()` chain follow
 
-Kyun?
-
-MRO.
-
----
-
-# 11. `D` ka MRO
+## 11. `D` ka MRO
 
 ```python
 print(D.mro())
 ```
 
-Conceptually:
-
-```text
-D
-B
-C
-A
-object
+**Output:**
+```
+[D, B, C, A, object]
 ```
 
-Isliye:
+## 12. Diamond Inheritance
 
-```python
-D.show()
 ```
-
-→ D
-
-`super()`:
-
-```text
-D ke baad → B
-```
-
-B ka `super()`:
-
-```text
-B ke baad → C
-```
-
-C ka `super()`:
-
-```text
-C ke baad → A
-```
-
-A ka `super()`:
-
-```text
-A ke baad → object
-```
-
-Result:
-
-```text
-D
-↓
-B
-↓
-C
-↓
-A
-```
-
----
-
-# 12. Diamond inheritance
-
-Ye structure:
-
-```text
        A
       / \
      B   C
@@ -2445,80 +1186,26 @@ Ye structure:
        D
 ```
 
-kehlata hai:
-
-> **Diamond inheritance**
-
-Code:
-
-```python
-class A:
-    def show(self):
-        print("A")
-
-class B(A):
-    pass
-
-class C(A):
-    pass
-
-class D(B, C):
-    pass
+**MRO:**
 ```
-
-MRO:
-
-```text
-D
-↓
-B
-↓
-C
-↓
-A
-↓
-object
-```
-
-Python C ko A se pehle consider karta hai.
-
----
-
-# 13. MRO manually calculate karna
-
-Is example mein:
-
-```python
-class A:
-    pass
-
-class B(A):
-    pass
-
-class C(A):
-    pass
-
-class D(B, C):
-    pass
-```
-
-Python ko multiple inheritance mein ek **consistent order** chahiye.
-
-Python C3 linearization algorithm use karta hai.
-
-Result:
-
-```text
 D → B → C → A → object
 ```
 
-Abhi C3 algorithm ka mathematical detail zaroori nahi; practical level par `Class.mro()` use karke exact order inspect kar sakte ho.
+## 13. MRO Manually
 
----
+```python
+class A: pass
+class B(A): pass
+class C(A): pass
+class D(B, C): pass
+```
 
-# 14. `super()` multiple inheritance mein powerful kyun hai?
+**MRO:**
+```
+D → B → C → A → object
+```
 
-Imagine:
+## 14. `super()` Multiple Inheritance
 
 ```python
 class B(A):
@@ -2527,121 +1214,37 @@ class B(A):
         super().show()
 ```
 
-Aur:
+**Explanation:**
+- `super()` B se direct A par jump nahi karta
+- MRO-relative next → `C`
 
-```python
-class C(A):
-    def show(self):
-        print("C")
-        super().show()
+## 15. Key Line
+
+```
+super() → MRO mein current class ke baad next
 ```
 
-Agar `D(B, C)` hai:
-
-```python
-super()
-```
-
-B se direct A par jump nahi karta.
-
-B ka MRO-relative next:
-
-```text
-C
-```
-
-hai.
-
-Isliye:
-
-```text
-B
-↓
-C
-↓
-A
-```
-
----
-
-# 15. Ye line yaad rakho
-
-> **`super()` parent ko nahi, MRO mein current class ke baad next implementation ko call karta hai.**
-
-Ye MRO + `super()` ka sabse important concept hai.
-
----
-
-# 16. `super()` ka object kya hota hai?
-
-Technically:
-
-```python
-super()
-```
-
-ek **super object** return karta hai.
-
-Example:
+## 16. `super()` Object
 
 ```python
 s = super()
 ```
 
-Ye object MRO-based attribute lookup ko facilitate karta hai.
+**Explanation:**
+- Super object MRO-based lookup
 
-Isliye:
-
-```python
-super().show()
-```
-
-ka matlab:
-
-```text
-super object se show lookup karo
-```
-
----
-
-# 17. `super()` mein arguments
-
-Normally modern Python mein:
-
-```python
-super()
-```
-
-enough hai.
-
-Lekin technically:
+## 17. `super()` with Arguments
 
 ```python
 super(CurrentClass, self)
 ```
 
-bhi likh sakte ho.
-
-Example:
-
+**Modern:**
 ```python
-class Dog(Animal):
-
-    def speak(self):
-        super(Dog, self).speak()
+super()
 ```
 
-Modern Python mein preferred:
-
-```python
-super().speak()
-```
-
----
-
-# 18. `super()` sirf methods ke liye nahi
-
-Attributes ke liye bhi use ho sakta hai.
+## 18. `super()` Attributes
 
 ```python
 class A:
@@ -2651,61 +1254,32 @@ class B(A):
     value = 20
 
     def show(self):
-        print(super().value)
+        print(super().value)   # 10
 ```
 
-Output:
-
-```text
-10
-```
-
-Yahan `super()` MRO ke next class mein `value` search karta hai.
-
----
-
-# 19. HVAC example
+## 19. HVAC Example
 
 ```python
 class Equipment:
-
     def start(self):
         print("Equipment starting")
 
 class AHU(Equipment):
-
     def start(self):
         super().start()
         print("AHU fan starting")
-```
 
-Run:
-
-```python
 ahu = AHU()
 ahu.start()
 ```
 
-Output:
-
-```text
+**Output:**
+```
 Equipment starting
 AHU fan starting
 ```
 
-Flow:
-
-```text
-AHU.start()
-    ↓
-super().start()
-    ↓
-Equipment.start()
-```
-
----
-
-# 20. Multiple HVAC components
+## 20. Multiple HVAC
 
 ```python
 class Equipment:
@@ -2721,626 +1295,177 @@ class AHU(Fan):
     def start(self):
         super().start()
         print("AHU")
+
+AHU().start()
 ```
 
-Output:
-
-```text
+**Output:**
+```
 Equipment
 Fan
 AHU
 ```
 
-MRO:
-
-```text
-AHU
- ↓
-Fan
- ↓
-Equipment
- ↓
-object
-```
-
----
-
-# 21. `super()` aur cooperative inheritance
-
-Multiple inheritance mein best practice hoti hai ke participating classes:
+## 21. Cooperative Inheritance
 
 ```python
-super().method()
+super().method()  # Best practice
 ```
 
-use karein instead of directly parent ko call karna.
+**Explanation:**
+- MRO chain follow
 
-Good:
+## 22. `super()` vs Direct
 
 ```python
-super().start()
+Employee.__init__(self, name)  # Specific
+super().__init__(name)         # MRO follow
 ```
 
-Potentially problematic:
+## 23. Final Architecture
 
-```python
-Parent.start(self)
+```
+Inheritance → MRO → super()
 ```
 
-Kyun?
+## 24. Golden Rules
 
-Direct parent call MRO chain ko bypass kar sakta hai.
-
----
-
-# 22. `super()` vs direct parent call
-
-### Direct:
-
-```python
-Employee.__init__(self, name)
 ```
-
-Ye specifically `Employee` ko call karta hai.
-
-### `super()`:
-
-```python
-super().__init__(name)
-```
-
-Ye MRO follow karta hai.
-
-Simple inheritance mein dono similar result de sakte hain.
-
-Multiple inheritance mein difference critical ho sakta hai.
-
----
-
-# 23. Final architecture
-
-```text
-Inheritance
-     ↓
-MRO
-     ↓
-Python classes ka search order
-     ↓
-super()
-     ↓
-MRO ke according next implementation
-```
-
-Example:
-
-```text
-       Equipment
-       /       \
-     HVAC     Electrical
-       \       /
-        BuildingSystem
-```
-
-Aise complex hierarchy mein direct parent calls ke bajaye cooperative `super()` chain MRO ko follow kar sakti hai.
-
----
-
-# 24. Golden rules
-
-```text
 1. MRO = Method Resolution Order
-
-2. Class.mro() se exact order dekh sakte ho.
-
-3. super() ka matlab simply "parent" nahi hai.
-
-4. super() MRO mein current class ke baad next implementation
-   ko search karta hai.
-
-5. Multiple inheritance mein super() bohat important hai.
-
-6. Direct Parent.method(self) MRO ko bypass kar sakta hai.
-
-7. Cooperative inheritance mein classes super() chain continue karti hain.
+2. Class.mro() → exact order
+3. super() → MRO next
+4. Multiple inheritance → super() important
+5. Cooperative inheritance → super() chain
 ```
 
-### Mental model
-
-```text
-class D(B, C)
-
-MRO:
-
-D
-↓
-B
-↓
-C
-↓
-A
-↓
-object
-
-D.super() → B
-B.super() → C
-C.super() → A
-A.super() → object
-```
-
-**Next Lesson 35:** Python ka **Method Resolution Order (C3 Linearization) deeply** — `D(B, C)` ka MRO Python mathematically kaise calculate karta hai, aur **MRO conflict** kab aur kyun hota hai.
+---
 
 # Lesson 35: MRO aur C3 Linearization
 
-Ab hum previous lesson ke **MRO** ko deeper level par samjhenge.
-
-Sab se pehle simple rule:
-
-> **MRO woh order hai jisme Python classes ko search karta hai.**
-
-Multiple inheritance mein Python **C3 Linearization** use karta hai taake ek consistent MRO ban sake.
-
----
-
-## 1. Simple inheritance
+## 1. Simple Inheritance
 
 ```python
-class A:
-    pass
-
-class B(A):
-    pass
+class A: pass
+class B(A): pass
 ```
 
-MRO:
-
-```text
-B
-↓
-A
-↓
-object
+**MRO:**
 ```
-
-```python
-print(B.mro())
-```
-
-Conceptually:
-
-```text
-[B, A, object]
-```
-
-Simple case easy hai.
-
----
-
-# 2. Multiple inheritance
-
-```python
-class A:
-    pass
-
-class B:
-    pass
-
-class C(B, A):
-    pass
-```
-
-MRO:
-
-```text
-C
-↓
-B
-↓
-A
-↓
-object
-```
-
-Yahan parent order:
-
-```python
-class C(B, A)
-```
-
-important hai.
-
-Python normally `B` ko `A` se pehle rakhega.
-
----
-
-# 3. Diamond inheritance
-
-Ab famous example:
-
-```python
-class A:
-    pass
-
-class B(A):
-    pass
-
-class C(A):
-    pass
-
-class D(B, C):
-    pass
-```
-
-Structure:
-
-```text
-       A
-      / \
-     B   C
-      \ /
-       D
-```
-
-MRO:
-
-```text
-D
-B
-C
-A
-object
-```
-
-Yani:
-
-```python
-print(D.mro())
-```
-
-conceptually:
-
-```text
-[D, B, C, A, object]
-```
-
----
-
-# 4. Sawal: `A` ko B aur C ke baad kyun rakha?
-
-Kyunkay Python ko ye dono relationships maintain karne hain:
-
-```text
-D → B → A
-```
-
-aur:
-
-```text
-D → C → A
-```
-
-Saath hi:
-
-```text
-B → C
-```
-
-ya
-
-```text
-C → B
-```
-
-jaisi arbitrary ordering nahi banani.
-
-C3 ek **consistent linear order** produce karta hai.
-
----
-
-# 5. C3 ka basic idea
-
-C3 ko abhi mathematical formula ke baghair samjho.
-
-Python inheritance tree ko ek single ordered list mein convert karta hai:
-
-```text
-Inheritance graph
-       ↓
-C3 Linearization
-       ↓
-MRO list
-```
-
-Example:
-
-```text
-       A
-      / \
-     B   C
-      \ /
-       D
-```
-
-becomes:
-
-```text
-D → B → C → A → object
-```
-
----
-
-# 6. Sabse important C3 rules
-
-C3 MRO ko banate waqt generally ye properties maintain karta hai:
-
-### Rule 1 — Child pehle
-
-```text
-D
-↓
-parents
-```
-
-Isliye `D` apne parents se pehle aata hai.
-
----
-
-### Rule 2 — Parent order preserve karo
-
-Agar likha:
-
-```python
-class D(B, C):
-```
-
-to:
-
-```text
-B → C
-```
-
-order preserve hona chahiye.
-
-Python normally ise reverse nahi karega:
-
-```text
-C → B
-```
-
----
-
-### Rule 3 — Existing inheritance order preserve karo
-
-Agar:
-
-```python
-class B(A):
-```
-
-to B ke MRO mein:
-
-```text
-B → A
-```
-
-hona chahiye.
-
-Python kisi derived class ka established parent order randomly break nahi karta.
-
----
-
-# 7. C3 ko ek practical example se samjho
-
-```python
-class A:
-    pass
-
-class B(A):
-    pass
-
-class C(A):
-    pass
-
-class D(B, C):
-    pass
-```
-
-Pehle:
-
-```text
-B ka MRO:
 B → A → object
 ```
 
-Aur:
+## 2. Multiple Inheritance
 
-```text
-C ka MRO:
-C → A → object
+```python
+class A: pass
+class B: pass
+class C(B, A): pass
 ```
 
-Ab D:
-
-```text
-D(B, C)
+**MRO:**
+```
+C → B → A → object
 ```
 
-ko dono inheritance chains ko combine karna hai.
+**Explanation:**
+- Parent order important
 
-Result:
+## 3. Diamond
 
-```text
+```python
+class A: pass
+class B(A): pass
+class C(A): pass
+class D(B, C): pass
+```
+
+**MRO:**
+```
 D → B → C → A → object
 ```
 
----
+## 4. `A` B aur C ke Baad Kyun?
 
-# 8. `A` ko pehle kyun nahi rakh sakte?
+**Explanation:**
+- `D → B → A` aur `D → C → A` maintain
+- C3 consistent order banata hai
 
-Agar Python ye karta:
+## 5. C3 Basic Idea
 
-```text
-D → A → B → C
+```
+Inheritance graph → C3 → MRO list
 ```
 
-to B ki inheritance relationship:
+## 6. C3 Rules
 
-```text
-B → A
-```
+1. Child pehle
+2. Parent order preserve
+3. Existing inheritance order preserve
 
-ka expected order break ho jata.
-
-B ke MRO mein B ko A se pehle hona chahiye.
-
-Isliye:
-
-```text
-B → A
-```
-
-preserve hota hai.
-
----
-
-# 9. Parent order ka example
+## 7. C3 Practical
 
 ```python
-class A:
-    pass
-
-class B:
-    pass
-
-class C(A, B):
-    pass
+class A: pass
+class B(A): pass
+class C(A): pass
+class D(B, C): pass
 ```
 
-MRO:
-
-```text
-C
-↓
-A
-↓
-B
-↓
-object
+**MRO:**
 ```
-
-Agar:
-
-```python
-class C(B, A):
-    pass
-```
-
-to MRO generally:
-
-```text
-C
-↓
-B
-↓
-A
-↓
-object
-```
-
-Parent declaration order matter karta hai.
-
----
-
-# 10. MRO conflict
-
-Ab important part.
-
-Har multiple inheritance hierarchy ka valid MRO zaroori nahi hota.
-
-Example:
-
-```python
-class A:
-    pass
-
-class B(A):
-    pass
-
-class C(A):
-    pass
-
-class D(B, C):
-    pass
-```
-
-Valid:
-
-```text
 D → B → C → A → object
 ```
 
-Lekin agar inheritance constraints contradictory ho jayein, Python class creation par error de sakta hai.
+## 8. `A` Pehle Kyun Nahi?
 
----
+**Explanation:**
+- B ka MRO: `B → A`
+- A pehle rakhne se B ki relationship break
 
-# 11. Classic MRO conflict
-
-Example:
+## 9. Parent Order
 
 ```python
-class A:
-    pass
-
-class B(A):
-    pass
-
-class C(A):
-    pass
-
-class X(B, C):
-    pass
-
-class Y(C, B):
-    pass
-
-class Z(X, Y):
-    pass
+class C(A, B): pass
 ```
 
-Yahan problem:
-
-`X` require karta hai:
-
-```text
-B → C
+**MRO:**
+```
+C → A → B → object
 ```
 
-Lekin `Y` require karta hai:
-
-```text
-C → B
+```python
+class C(B, A): pass
 ```
 
-Ab `Z` ko dono conditions simultaneously satisfy karni hain:
-
-```text
-B before C
+**MRO:**
+```
+C → B → A → object
 ```
 
-aur:
+## 10. MRO Conflict
 
-```text
-C before B
+```python
+class A: pass
+class B(A): pass
+class C(A): pass
+class X(B, C): pass
+class Y(C, B): pass
+class Z(X, Y): pass
 ```
 
-Impossible.
+**Error:**
+```
+TypeError: Cannot create a consistent MRO
+```
 
-Python class create karte waqt MRO conflict report karega.
+**Explanation:**
+- `X` require: B → C
+- `Y` require: C → B
+- Contradiction
 
----
+## 11. Diagram
 
-# 12. Isko diagram se dekho
-
-```text
+```
        B       C
        ↓       ↓
        X       Y
@@ -3350,1348 +1475,370 @@ Python class create karte waqt MRO conflict report karega.
            Z
 ```
 
-`Z` ke liye requirements:
-
-```text
-B < C
-```
-
-aur:
-
-```text
-C < B
-```
-
-Dono simultaneously true nahi ho sakte.
-
-Isliye valid MRO nahi ban sakta.
-
----
-
-# 13. Error kab aata hai?
-
-Important:
-
-Ye runtime method call ka error nahi.
-
-Class definition ke waqt hi:
+## 12. Error Kab?
 
 ```python
-class Z(X, Y):
-    pass
+class Z(X, Y): pass  # Class creation par error
 ```
 
-Python MRO calculate karega.
+**Explanation:**
+- Runtime nahi, class definition par
 
-Agar consistent MRO nahi ban sakta:
-
-```text
-TypeError
-Cannot create a consistent method resolution order
-```
-
-type ka error mil sakta hai.
-
----
-
-# 14. MRO inspect karne ke tools
-
-Sabse useful:
+## 13. MRO Tools
 
 ```python
-Class.mro()
+D.mro()       # List
+D.__mro__     # Tuple
 ```
 
-Example:
+## 14. `super()` + C3
 
 ```python
-print(D.mro())
-```
-
-Ya:
-
-```python
-print(D.__mro__)
-```
-
-### `mro()`
-
-List deta hai.
-
-### `__mro__`
-
-Tuple deta hai.
-
-Conceptually:
-
-```python
-D.mro()
-```
-
-```text
-[D, B, C, A, object]
-```
-
-aur:
-
-```python
-D.__mro__
-```
-
-```text
-(D, B, C, A, object)
-```
-
----
-
-# 15. `super()` ka connection
-
-Ab previous lesson ka `super()` aur C3 connect karo.
-
-```python
-class A:
-    def show(self):
-        print("A")
-
-class B(A):
-    def show(self):
-        print("B")
-        super().show()
-
-class C(A):
-    def show(self):
-        print("C")
-        super().show()
-
 class D(B, C):
     def show(self):
         print("D")
         super().show()
 ```
 
-MRO:
-
-```text
-D
-↓
-B
-↓
-C
-↓
-A
-↓
-object
+**MRO:**
 ```
-
-Call:
-
-```python
-D().show()
-```
-
-Flow:
-
-```text
-D.show()
-   ↓
-super()
-   ↓
-B.show()
-   ↓
-super()
-   ↓
-C.show()
-   ↓
-super()
-   ↓
-A.show()
-```
-
-Output:
-
-```text
-D
-B
-C
-A
-```
-
----
-
-# 16. Yahan `super()` ka real meaning
-
-B ke andar:
-
-```python
-super().show()
-```
-
-ka matlab:
-
-> "B ke parent ko directly call karo"
-
-**nahi.**
-
-Actual idea:
-
-> "MRO mein B ke baad `show()` ki next implementation find karo."
-
-B ke MRO context mein next:
-
-```text
-C
-```
-
-hai.
-
-Isliye B se:
-
-```text
-B → C
-```
-
-hota hai.
-
----
-
-# 17. Direct parent call kyun dangerous ho sakta hai?
-
-Agar B mein:
-
-```python
-A.show(self)
-```
-
-likh diya:
-
-```python
-class B(A):
-    def show(self):
-        print("B")
-        A.show(self)
-```
-
-to B direct A par jump karega.
-
-Multiple inheritance mein C bypass ho sakta hai.
-
-```text
-D
-↓
-B
-↓
-A
-```
-
-instead of cooperative:
-
-```text
-D
-↓
-B
-↓
-C
-↓
-A
-```
-
-Isliye cooperative multiple inheritance mein:
-
-```python
-super()
-```
-
-important hai.
-
----
-
-# 18. `super()` + `__init__`
-
-Multiple inheritance mein ye pattern common hai:
-
-```python
-class A:
-    def __init__(self):
-        print("A")
-
-class B(A):
-    def __init__(self):
-        print("B")
-        super().__init__()
-
-class C(A):
-    def __init__(self):
-        print("C")
-        super().__init__()
-
-class D(B, C):
-    def __init__(self):
-        print("D")
-        super().__init__()
-```
-
-MRO:
-
-```text
 D → B → C → A → object
 ```
 
-So:
-
-```python
-D()
+**Flow:**
+```
+D → B → C → A
 ```
 
-Output:
+## 15. `super()` Real Meaning
 
-```text
+```
+B super() → MRO mein B ke baad → C
+```
+
+## 16. Direct Parent Call
+
+```python
+A.show(self)   # C bypass
+```
+
+**Explanation:**
+- Cooperative inheritance break
+
+## 17. `super()` + `__init__`
+
+```python
+class D(B, C):
+    def __init__(self):
+        print("D")
+        super().__init__()
+```
+
+**Output:**
+```
 D
 B
 C
 A
 ```
 
----
-
-# 19. Is pattern ko cooperative inheritance kehte hain
-
-Har class:
+## 18. Cooperative Inheritance
 
 ```python
-super().__init__()
+# Har class super().__init__() call
 ```
 
-call karti hai.
-
-Result:
-
-```text
-D
- ↓
-B
- ↓
-C
- ↓
-A
-```
-
-Har class apni responsibility perform karti hai aur chain ko continue karti hai.
-
----
-
-# 20. Practical HVAC example
-
-Suppose:
-
-```text
-Equipment
-   ↑
-   ├── HVAC
-   │
-   └── NetworkDevice
-```
-
-Aur ek device dono categories ka hai:
+## 19. HVAC Example
 
 ```python
-class Equipment:
-    def start(self):
-        print("Equipment started")
-
-class HVAC(Equipment):
-    def start(self):
-        print("HVAC system")
-        super().start()
-
-class NetworkDevice(Equipment):
-    def start(self):
-        print("Network connection")
-        super().start()
-
 class SmartAHU(HVAC, NetworkDevice):
     def start(self):
         print("Smart AHU")
         super().start()
 ```
 
-MRO:
-
-```text
-SmartAHU
-↓
-HVAC
-↓
-NetworkDevice
-↓
-Equipment
-↓
-object
+**MRO:**
+```
+SmartAHU → HVAC → NetworkDevice → Equipment → object
 ```
 
-`SmartAHU().start()`:
+## 20. C3 Mental Model
 
-```text
-Smart AHU
-HVAC system
-Network connection
-Equipment started
 ```
-
-Ye cooperative multiple inheritance ka practical pattern hai.
-
----
-
-# 21. C3 ko abhi kitna yaad rakhna hai?
-
-Tumhe abhi mathematical implementation memorize karne ki zaroorat nahi.
-
-Ye mental model enough hai:
-
-```text
-C3 Linearization
-        ↓
-consistent MRO banata hai
-        ↓
+C3 → consistent MRO
+   ↓
 child first
-        ↓
-parent declaration order preserve
-        ↓
-existing inheritance order preserve
-        ↓
-conflict ho to class creation fail
+parent order preserve
+existing order preserve
+conflict → error
+```
+
+## 21. Distinction
+
+```
+MRO     → search order
+super() → MRO next
+C3      → MRO calculate
 ```
 
 ---
-
-# 22. Most important distinction
-
-### MRO
-
-```text
-Python classes ko kis order mein search karega?
-```
-
-### `super()`
-
-```text
-MRO ke according next implementation ko kaise access karna hai?
-```
-
-### C3 Linearization
-
-```text
-MRO ko calculate karne ka algorithm.
-```
-
----
-
-## Final mental model
-
-```text
-Multiple Inheritance
-        ↓
-   C3 Linearization
-        ↓
-       MRO
-        ↓
-D → B → C → A → object
-        ↓
-     super()
-        ↓
-MRO mein next implementation
-```
-
-### Ek line mein:
-
-> **C3 Linearization inheritance hierarchy ko ek consistent MRO mein convert karta hai; `super()` us MRO ko follow karte hue next implementation tak pohanchta hai.**
-
-**Next Lesson 36:** **Protocols & Structural Typing (`typing.Protocol`)** — Python mein inheritance ke baghair “interface” kaise define hota hai, `Protocol` aur ABC mein kya difference hai, aur ye tumhare pehle wale `Protocol` wale question se kaise connect hota hai.
 
 # Lesson 36: `Protocol` aur Structural Typing
 
-Ab hum Python typing ka ek important advanced concept samjhenge:
-
-> **`Protocol` inheritance ke baghair interface-like behavior define karta hai.**
-
-Ye tumhare pehle wale question **“Protocol as interface kaam karta hai?”** ka deeper answer hai.
-
----
-
-## 1. Traditional inheritance interface
-
-Suppose hum kehte hain har equipment ke paas `start()` hona chahiye:
+## 1. Traditional Interface
 
 ```python
 from abc import ABC, abstractmethod
 
 class Equipment(ABC):
-
     @abstractmethod
     def start(self):
         pass
-```
 
-Ab:
-
-```python
 class AHU(Equipment):
-
     def start(self):
         print("AHU started")
 ```
 
-`AHU` explicitly `Equipment` se inherit kar raha hai.
+**Explanation:**
+- `AHU` explicitly `Equipment` se inherit
 
-```text
-AHU
- ↓
-Equipment
-```
-
-Ye **nominal typing** style hai:
-
-> Relationship explicitly declare ki gayi hai.
-
----
-
-# 2. `Protocol` mein inheritance zaroori nahi
-
-Ab:
+## 2. `Protocol`
 
 ```python
 from typing import Protocol
 
 class Startable(Protocol):
-
     def start(self) -> None:
         ...
-```
 
-Ab koi class:
-
-```python
 class AHU:
-
     def start(self) -> None:
         print("AHU started")
 ```
 
-Notice:
+**Explanation:**
+- `AHU` inherit nahi kiya
+- Structure match → compatible
 
-```python
-class AHU:
+## 3. Structural Typing
+
+```
+Nominal:    AHU → Equipment (explicit)
+Structural: AHU → has start() → matches
 ```
 
-ne:
-
-```python
-Startable
-```
-
-se inherit nahi kiya.
-
-Phir bhi static type checker ke liye `AHU` `Startable` protocol satisfy kar sakta hai, kyun ke uske paas required:
-
-```python
-start()
-```
-
-method hai.
-
----
-
-# 3. Ye Structural Typing hai
-
-Is concept ka naam:
-
-> **Structural Typing**
-
-Meaning:
-
-> Object ki identity/parentage se zyada uski **structure/capabilities** dekhi jati hain.
-
-Simple mental model:
-
-```text
-Nominal typing:
-
-AHU → Equipment
-      ↓
-explicit relationship
-
-
-Structural typing:
-
-AHU
- ↓
-has start()
- ↓
-matches Startable
-```
-
----
-
-# 4. Duck typing se connection
-
-Python mein famous idea:
-
-> **If it walks like a duck and quacks like a duck, treat it like a duck.**
-
-Example:
-
-```python
-class AHU:
-
-    def start(self):
-        print("AHU started")
-
-
-class Pump:
-
-    def start(self):
-        print("Pump started")
-```
-
-Function:
+## 4. Duck Typing
 
 ```python
 def start_equipment(equipment):
     equipment.start()
-```
 
-Dono work karenge:
-
-```python
 start_equipment(AHU())
 start_equipment(Pump())
 ```
 
-Kyun?
+**Explanation:**
+- `start()` available → kaam karega
 
-Function ko ye matter nahi karta ke object kis class se bana hai.
-
-Usko sirf chahiye:
-
-```text
-start()
-```
-
----
-
-# 5. `Protocol` duck typing ko static typing deta hai
-
-Without Protocol:
+## 5. `Protocol` = Duck Typing Static
 
 ```python
-def start_equipment(equipment):
-    equipment.start()
-```
-
-Runtime par Python simply method call karega.
-
-Protocol ke saath:
-
-```python
-from typing import Protocol
-
 class Startable(Protocol):
-
     def start(self) -> None:
         ...
 ```
 
-Ab type checker ko explicitly bata rahe ho:
+**Explanation:**
+- Type checker ko bata rahe ho
 
-> Jo object `start()` provide karta hai, woh `Startable` interface ko satisfy karta hai.
-
----
-
-# 6. Practical example
+## 6. Practical
 
 ```python
-from typing import Protocol
-
-
-class Startable(Protocol):
-
-    def start(self) -> None:
-        ...
-
-
-class AHU:
-
-    def start(self) -> None:
-        print("AHU started")
-
-
-class Pump:
-
-    def start(self) -> None:
-        print("Pump started")
-
-
 def start_equipment(equipment: Startable) -> None:
     equipment.start()
 ```
 
-Use:
+**Explanation:**
+- `AHU`, `Pump` dono compatible
+
+## 7. `AHU` Inherit Nahi
 
 ```python
-start_equipment(AHU())
-start_equipment(Pump())
+class AHU:  # Not AHU(Startable)
 ```
 
-Output:
+**Explanation:**
+- Structural compatibility
 
-```text
-AHU started
-Pump started
-```
+## 8. ABC vs Protocol
 
----
+| Feature | ABC | Protocol |
+|---------|-----|----------|
+| Inheritance | Yes | No |
+| Style | Nominal | Structural |
+| Runtime | Possible | Static |
 
-# 7. AHU ne Protocol inherit nahi kiya
-
-Ye important hai:
-
-```python
-class AHU:
-```
-
-not:
+## 9. ABC Example
 
 ```python
 class AHU(Startable):
-```
-
-Phir bhi static type checker structural compatibility recognize kar sakta hai.
-
-Yahi `Protocol` ki major power hai.
-
----
-
-# 8. ABC vs Protocol
-
-| Feature                                     | ABC                                 | Protocol                  |
-| ------------------------------------------- | ----------------------------------- | ------------------------- |
-| Explicit inheritance                        | Usually yes                         | Zaroori nahi              |
-| Main idea                                   | Nominal abstraction                 | Structural abstraction    |
-| Runtime enforcement                         | Possible                            | Primarily static typing   |
-| Duck typing style                           | Less direct                         | Very natural              |
-| Existing unrelated class adapt ho sakti hai | Usually explicit inheritance needed | Yes, if structure matches |
-| Interface-like design                       | Yes                                 | Yes                       |
-
----
-
-# 9. ABC example
-
-```python
-from abc import ABC, abstractmethod
-
-class Startable(ABC):
-
-    @abstractmethod
-    def start(self):
-        pass
-```
-
-Class:
-
-```python
-class AHU(Startable):
-
     def start(self):
         print("AHU")
 ```
 
-Explicit relationship:
-
-```text
-AHU
- ↓
-Startable
-```
-
----
-
-# 10. Protocol example
-
-```python
-from typing import Protocol
-
-class Startable(Protocol):
-
-    def start(self) -> None:
-        ...
-```
-
-Class:
+## 10. Protocol Example
 
 ```python
 class AHU:
-
     def start(self):
         print("AHU")
 ```
 
-Relationship:
-
-```text
-AHU
- │
- ├── start()
- │
- └── structurally matches Startable
-```
-
-No inheritance required.
-
----
-
-# 11. `...` ka kya matlab hai?
-
-Protocol mein:
+## 11. `...` Ka Matlab
 
 ```python
-class Startable(Protocol):
-
-    def start(self) -> None:
-        ...
+def start(self) -> None:
+    ...
 ```
 
-`...` yani Ellipsis yahan implementation provide nahi kar raha.
+**Explanation:**
+- Implementation nahi
+- Specification
 
-Ye basically specification/interface batata hai:
-
-```text
-Required:
-start() → None
-```
-
-Protocol ka focus:
-
-> **What should be available?**
-
-not:
-
-> **How should it be implemented?**
-
----
-
-# 12. Multiple methods
-
-Protocol sirf ek method ke liye nahi.
+## 12. Multiple Methods
 
 ```python
-from typing import Protocol
-
 class EquipmentProtocol(Protocol):
-
     equipment_id: str
 
-    def start(self) -> None:
-        ...
-
-    def stop(self) -> None:
-        ...
-
-    def status(self) -> str:
-        ...
+    def start(self) -> None: ...
+    def stop(self) -> None: ...
+    def status(self) -> str: ...
 ```
 
-Ab compatible class mein ye sab hona chahiye:
-
-```python
-class AHU:
-
-    def __init__(self):
-        self.equipment_id = "AHU-01"
-
-    def start(self):
-        print("Starting")
-
-    def stop(self):
-        print("Stopping")
-
-    def status(self):
-        return "Running"
-```
-
-Structure match ho raha hai.
-
----
-
-# 13. Protocol attribute bhi define kar sakta hai
-
-Example:
+## 13. Protocol Attributes
 
 ```python
 class Sensor(Protocol):
-
     temperature: float
-
-    def read(self) -> float:
-        ...
+    def read(self) -> float: ...
 ```
 
-Ab compatible object ke paas:
-
-```text
-temperature
-read()
-```
-
-hona chahiye.
-
----
-
-# 14. Read-only property Protocol mein
-
-Agar interface property expect karta hai:
+## 14. Read-Only Property
 
 ```python
-from typing import Protocol
-
 class TemperatureSensor(Protocol):
-
     @property
-    def temperature(self) -> float:
-        ...
+    def temperature(self) -> float: ...
 ```
 
-Ab class:
+## 15. Protocol Inheritance
 
 ```python
-class AHUSensor:
-
-    @property
-    def temperature(self) -> float:
-        return 22.5
-```
-
-structurally compatible ho sakti hai.
-
----
-
-# 15. Protocol inheritance
-
-Protocols ek doosre se inherit bhi kar sakte hain.
-
-```python
-class Startable(Protocol):
-
-    def start(self) -> None:
-        ...
-
-
-class Stoppable(Protocol):
-
-    def stop(self) -> None:
-        ...
-
-
 class Controllable(Startable, Stoppable, Protocol):
-
-    def reset(self) -> None:
-        ...
+    def reset(self) -> None: ...
 ```
 
-Ab `Controllable` require karta hai:
-
-```text
-start()
-stop()
-reset()
-```
-
----
-
-# 16. Protocol ka real-world advantage
-
-Suppose tumhare paas external library ki class hai:
+## 16. Real-World Advantage
 
 ```python
 class ExternalDevice:
-
     def start(self):
         print("Started")
 ```
 
-Tum us class ko modify nahi kar sakte.
+**Explanation:**
+- External class modify nahi kar sakte
+- Protocol use kar sakte ho
 
-Aur na hi:
+## 17. Loose Coupling
 
-```python
-class ExternalDevice(Startable):
+```
+Function → required interface → start()
 ```
 
-kar sakte ho.
-
-Protocol ke saath:
-
-```python
-class Startable(Protocol):
-
-    def start(self):
-        ...
-```
-
-Function:
-
-```python
-def run(device: Startable):
-    device.start()
-```
-
-ExternalDevice ko directly use kar sakte ho, provided uska structure compatible ho.
-
----
-
-# 17. Isi liye Protocol loose coupling deta hai
-
-Traditional:
-
-```text
-Function
-   ↓
-specific parent class
-   ↓
-Equipment
-```
-
-Protocol:
-
-```text
-Function
-   ↓
-required interface
-   ↓
-start()
-```
-
-Function ko concrete class ki dependency kam ho jati hai.
-
-Isko software architecture mein **loose coupling** ke context mein use kiya jata hai.
-
----
-
-# 18. Protocol + polymorphism
-
-Ye dono naturally connect hote hain.
-
-```python
-class Startable(Protocol):
-
-    def start(self) -> None:
-        ...
-```
-
-Multiple classes:
-
-```python
-class AHU:
-
-    def start(self):
-        print("AHU")
-
-
-class Pump:
-
-    def start(self):
-        print("Pump")
-
-
-class Chiller:
-
-    def start(self):
-        print("Chiller")
-```
-
-Function:
+## 18. Protocol + Polymorphism
 
 ```python
 def start(device: Startable):
     device.start()
-```
 
-Ab:
-
-```python
 start(AHU())
 start(Pump())
 start(Chiller())
 ```
 
-Same interface:
-
-```text
-start()
-```
-
-Different behavior:
-
-```text
-AHU
-Pump
-Chiller
-```
-
-Ye **polymorphism** hai.
-
----
-
-# 19. Runtime `isinstance()` ka special case
-
-Normally:
-
-```python
-class Startable(Protocol):
-    def start(self):
-        ...
-```
-
-ke saath:
-
-```python
-isinstance(AHU(), Startable)
-```
-
-directly runtime structural check ke liye generally allowed nahi hota.
-
-Agar runtime check chahiye:
+## 19. `@runtime_checkable`
 
 ```python
 from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class Startable(Protocol):
+    def start(self) -> None: ...
 
-    def start(self) -> None:
-        ...
+isinstance(AHU(), Startable)   # True
 ```
 
-Ab:
+## 20. Limitation
 
-```python
-print(isinstance(AHU(), Startable))
+```
+@runtime_checkable → basic structure check
+Full static validation nahi
 ```
 
-`True` ho sakta hai agar required runtime structure satisfy ho.
+## 21. ABC vs Protocol Kab
 
----
-
-# 20. Important limitation
-
-`@runtime_checkable` ko full static type validation samajhna galat hoga.
-
-Runtime check primarily ye dekh sakta hai ke required attributes/method names available hain.
-
-Ye static type checker ki tarah har detail verify nahi karta.
-
-For example, method ke exact type annotations ka complete static compatibility check runtime `isinstance()` ka kaam nahi hai.
-
----
-
-# 21. `Protocol` vs `ABC` kab?
-
-### ABC
-
-Use karna natural hai jab:
-
-```text
-strong conceptual hierarchy
-shared implementation
-controlled inheritance
+**ABC:**
+```
+Strong hierarchy, shared implementation
 ```
 
-Example:
-
-```text
-Equipment
-├── AHU
-├── VAV
-└── Chiller
+**Protocol:**
+```
+Different classes, same capability, loose coupling
 ```
 
-### Protocol
+## 22. `typing` Connection
 
-Use karna natural hai jab:
-
-```text
-different/unrelated classes
-same capability
-loose coupling
-external classes
-structural typing
+```
+Any → kuch bhi
+Union → multiple types
+Optional → T ya None
+TypeVar → generic
+Protocol → required structure
+TypedDict → dictionary structure
 ```
 
-Example:
+## 23. Final Mental Model
 
-```text
-AHU      → start()
-Pump     → start()
-Chiller  → start()
 ```
-
-Inka inheritance relationship hona zaroori nahi.
-
----
-
-# 22. Tumhare `typing` wale concepts se connection
-
-Tumne pehle poocha tha:
-
-```python
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    Mapping,
-    Optional,
-    Protocol,
-    Tuple,
-    Union
-)
-```
-
-Ab `Protocol` ko complete context mein dekho:
-
-```text
-Any
-→ kuch bhi
-
-Union
-→ multiple possible types
-
-Optional
-→ T ya None
-
-TypeVar
-→ generic type placeholder
-
-Protocol
-→ required structure / interface
-
-TypedDict
-→ dictionary ki expected structure
-```
-
-Protocol ka core idea:
-
-```text
-"Object kis class ka hai?"
-        ↓
-kam important
-
-"Object kya methods/attributes provide karta hai?"
-        ↓
-important
+ABC → "Meri hierarchy ka member bano"
+Protocol → "Required interface do"
+Duck Typing → "Behavior do, use kar lo"
+Structural Typing → "Structure match → compatible"
 ```
 
 ---
-
-# 23. Final mental model
-
-```text
-ABC
-↓
-"Is class ko meri hierarchy ka member bano."
-
-Protocol
-↓
-"Bas required interface provide karo."
-
-Duck Typing
-↓
-"Jo required behavior provide karta hai, use kar lo."
-
-Structural Typing
-↓
-"Structure/capability match ho to type compatible."
-```
-
-### Ek line mein:
-
-> **`Protocol` Python mein interface-like contract define karta hai jise classes bina explicit inheritance ke bhi satisfy kar sakti hain; isi ko structural typing kehte hain.**
-
-**Next Lesson 37:** `Generic`, `TypeVar` aur `Protocol` ko combine karna — yani reusable **type-safe generic interfaces**, jaise `Repository[T]`, `Storage[T]`, aur HVAC equipment ke generic providers.
 
 # Lesson 37: `Generic` + `TypeVar` + `Protocol`
 
-Ab hum 3 concepts ko **ek saath** samjhenge:
-
-```text
-TypeVar
-   ↓
-Generic
-   ↓
-Protocol
-   ↓
-Reusable type-safe design
-```
-
-Ye Python typing ka kaafi important advanced part hai.
-
----
-
-## 1. Pehle `TypeVar` yaad karo
-
-Tumne pehle padha tha:
+## 1. `TypeVar`
 
 ```python
 from typing import TypeVar
 
 T = TypeVar("T")
-```
 
-`T` ka matlab:
-
-> "Yahan koi bhi type aa sakti hai, lekin jo type aayegi usko preserve karo."
-
-Example:
-
-```python
 def first(items: list[T]) -> T:
     return items[0]
 ```
 
-Agar:
+**Explanation:**
+- `T` → type placeholder
 
-```python
-names = ["Ali", "Ahmed", "Usman"]
-
-result = first(names)
-```
-
-to type:
-
-```text
-list[str]
-   ↓
-T = str
-   ↓
-result = str
-```
-
-Agar:
-
-```python
-numbers = [10, 20, 30]
-
-result = first(numbers)
-```
-
-to:
-
-```text
-T = int
-```
-
----
-
-# 2. Problem: reusable class
-
-Suppose humein storage banana hai.
+## 2. Problem: Reusable Class
 
 ```python
 class Storage:
@@ -4705,34 +1852,17 @@ class Storage:
         return self.data
 ```
 
-Problem:
+**Explanation:**
+- `get()` type unclear
 
-`get()` se kya type return hoga?
-
-```text
-str?
-int?
-AHU?
-Sensor?
-Employee?
-```
-
-Python ko clearly pata nahi.
-
----
-
-# 3. Generic class
-
-Ab:
+## 3. Generic Class
 
 ```python
 from typing import Generic, TypeVar
 
 T = TypeVar("T")
 
-
 class Storage(Generic[T]):
-
     def __init__(self):
         self.data: T | None = None
 
@@ -4743,1023 +1873,262 @@ class Storage(Generic[T]):
         return self.data
 ```
 
-Ab hum specify kar sakte hain:
+**Explanation:**
+- `Storage[str]`, `Storage[int]` possible
 
-```python
-Storage[str]
-```
-
-ya:
-
-```python
-Storage[int]
-```
-
----
-
-# 4. `Storage[str]`
+## 4. `Storage[str]`
 
 ```python
 name_storage = Storage[str]()
-```
-
-Conceptually:
-
-```text
-Storage[T]
-
-T = str
-
-Storage[str]
-```
-
-Ab:
-
-```python
 name_storage.set("Muhammad")
 ```
 
-valid.
+**Explanation:**
+- `T = str`
 
-Aur:
-
-```python
-name = name_storage.get()
-```
-
-type checker samjhega:
-
-```text
-name → str | None
-```
-
----
-
-# 5. `Storage[int]`
+## 5. `Storage[int]`
 
 ```python
 salary_storage = Storage[int]()
-```
-
-Ab:
-
-```python
 salary_storage.set(5000)
 ```
 
-valid.
+**Explanation:**
+- `T = int`
 
-Lekin:
+## 6. `Generic[T]`
 
-```python
-salary_storage.set("5000")
 ```
-
-static type checker isko incorrect report kar sakta hai.
-
----
-
-# 6. `Generic[T]` ka actual role
-
-Ye:
-
-```python
-class Storage(Generic[T]):
-```
-
-ka matlab:
-
-> Storage class khud generic hai aur `T` ko carry karegi.
-
-Diagram:
-
-```text
 Storage[T]
-    │
     ├── Storage[str]
-    │
     ├── Storage[int]
-    │
     └── Storage[AHU]
 ```
 
-Same class.
-
-Different type.
-
----
-
-# 7. Ab `Protocol` add karte hain
-
-Suppose hum kehte hain:
-
-> Humein aisa object chahiye jisme `get()` aur `set()` ho.
+## 7. Protocol + Generic
 
 ```python
 from typing import Protocol, TypeVar
 
 T = TypeVar("T")
 
-
 class Repository(Protocol[T]):
-
-    def get(self) -> T:
-        ...
-
-    def set(self, value: T) -> None:
-        ...
+    def get(self) -> T: ...
+    def set(self, value: T) -> None: ...
 ```
 
-Ab `Repository` ek **generic protocol** hai.
+**Explanation:**
+- Generic protocol
 
----
+## 8. Repository Types
 
-# 8. Generic Protocol ka matlab
-
-```python
-Repository[T]
 ```
-
-mein `T` change ho sakta hai:
-
-```text
 Repository[str]
 Repository[int]
 Repository[Employee]
-Repository[AHU]
 ```
 
-Aur interface same rahega:
-
-```text
-get()
-set()
-```
-
----
-
-# 9. Concrete class ko inherit karna zaroori nahi
+## 9. No Inheritance Needed
 
 ```python
 class MemoryRepository:
-
-    def __init__(self):
-        self.data = None
-
-    def get(self):
-        return self.data
-
-    def set(self, value):
-        self.data = value
+    def get(self): ...
+    def set(self, value): ...
 ```
 
-Notice:
+**Explanation:**
+- Structural typing
+
+## 10. HVAC Sensor
 
 ```python
-class MemoryRepository:
-```
-
-ne:
-
-```python
-Repository
-```
-
-se inherit nahi kiya.
-
-Phir bhi structure match karta hai:
-
-```text
-MemoryRepository
-│
-├── get()
-└── set()
-
-Repository
-│
-├── get()
-└── set()
-```
-
-Ye **structural typing** hai.
-
----
-
-# 10. Real example: HVAC
-
-Ab ek useful example.
-
-Humein ek generic sensor reader banana hai.
-
-```python
-from typing import Protocol, TypeVar
-
 T = TypeVar("T")
 
-
 class Sensor(Protocol[T]):
-
-    def read(self) -> T:
-        ...
+    def read(self) -> T: ...
 ```
-
-Ab temperature sensor:
 
 ```python
 class TemperatureSensor:
-
     def read(self) -> float:
         return 22.5
-```
 
-Aur status sensor:
-
-```python
 class StatusSensor:
-
     def read(self) -> str:
         return "Running"
 ```
 
-Dono same protocol ko structurally satisfy kar sakte hain.
-
----
-
-# 11. Generic function
+## 11. Generic Function
 
 ```python
 def read_sensor(sensor: Sensor[T]) -> T:
     return sensor.read()
 ```
 
-Ab:
+**Explanation:**
+- `T` automatic
 
-```python
-temperature = read_sensor(TemperatureSensor())
+## 12. Flow
+
+```
+TemperatureSensor → float → T = float
+StatusSensor → str → T = str
 ```
 
-Type:
+## 13. `Generic` vs `Protocol`
 
-```text
-float
+```
+Generic → reusable with types
+Protocol → required capabilities
 ```
 
-Aur:
-
-```python
-status = read_sensor(StatusSensor())
-```
-
-Type:
-
-```text
-str
-```
-
-Yahan `T` automatically different ho gaya.
-
----
-
-# 12. Flow dekho
-
-Temperature:
-
-```text
-TemperatureSensor
-       ↓
-read() → float
-       ↓
-T = float
-       ↓
-read_sensor()
-       ↓
-float
-```
-
-Status:
-
-```text
-StatusSensor
-       ↓
-read() → str
-       ↓
-T = str
-       ↓
-read_sensor()
-       ↓
-str
-```
-
-Yahi generic typing ki power hai.
-
----
-
-# 13. `Generic` vs `Protocol`
-
-Dono same cheez nahi hain.
-
-### `Generic`
-
-Batata hai:
-
-> Class/function kis type ke saath reusable hai?
-
-Example:
-
-```python
-class Box(Generic[T]):
-```
-
-### `Protocol`
-
-Batata hai:
-
-> Object mein kya capabilities honi chahiye?
-
-Example:
-
-```python
-class Readable(Protocol):
-    def read(self):
-        ...
-```
-
----
-
-# 14. Dono combine karne ka reason
-
-Suppose:
+## 14. Dono Combine
 
 ```python
 class Repository(Protocol[T]):
-
-    def get(self) -> T:
-        ...
-
-    def save(self, value: T) -> None:
-        ...
+    def get(self) -> T: ...
 ```
 
-Yahan:
-
-```text
-Protocol
-↓
-required behavior
-
-T
-↓
-required data type
+```
+Protocol → required behavior
+T → required data type
 ```
 
-Isliye:
-
-```text
-Repository[str]
-Repository[int]
-Repository[AHU]
-```
-
-sab possible hain.
-
----
-
-# 15. Generic Repository example
-
-```python
-from typing import Protocol, TypeVar
-
-T = TypeVar("T")
-
-
-class Repository(Protocol[T]):
-
-    def get(self, id: int) -> T:
-        ...
-
-    def save(self, item: T) -> None:
-        ...
-```
-
-Ab:
-
-```python
-class Employee:
-    def __init__(self, name):
-        self.name = name
-```
-
-Aur:
+## 15. Generic Repository
 
 ```python
 class EmployeeRepository:
-
-    def get(self, id: int) -> Employee:
-        return Employee("Ali")
-
-    def save(self, item: Employee) -> None:
-        print("Employee saved")
+    def get(self, id: int) -> Employee: ...
+    def save(self, item: Employee) -> None: ...
 ```
 
-Conceptually:
+## 16. Large Projects
 
-```text
-EmployeeRepository
-        ↓
-Repository[Employee]
+```
+Application → Repository[T] ← MySQL/API/Sheets
 ```
 
-without explicit inheritance.
+## 17. `T` Mental Model
 
----
-
-# 16. Ye large projects mein useful kyun hai?
-
-Suppose tumhara application database use karta hai.
-
-Aaj:
-
-```text
-MySQLRepository
+```
+T = "jo type baad mein decide karoge"
 ```
 
-kal:
+## 18. `Generic[T]`
 
-```text
-GoogleSheetsRepository
+```
+Box → T placeholder → Box[str], Box[int]
 ```
 
-parson:
+## 19. `Protocol[T]`
 
-```text
-APIRepository
+```
+Reader[T] → read() returns T
+Reader[float] → float
+Reader[str] → str
 ```
 
-Agar sab mein same interface hai:
-
-```text
-get()
-save()
-delete()
-```
-
-to application ko implementation ki details se kam concern hoga.
-
-```text
-Application
-     ↓
-Repository[T]
-     ↑
-     │
- ┌───┼───────────────┐
- │   │               │
-SQL Google Sheets   API
-```
-
-Ye **loose coupling** hai.
-
----
-
-# 17. `T` ko simple tareeqe se yaad rakho
-
-```python
-T = TypeVar("T")
-```
-
-ko initially is tarah socho:
-
-> **T = jo type tum baad mein decide karoge.**
-
-Example:
-
-```python
-Box[str]
-```
-
-means:
-
-```text
-T = str
-```
-
-Aur:
-
-```python
-Box[int]
-```
-
-means:
-
-```text
-T = int
-```
-
----
-
-# 18. `Generic[T]` ka mental model
-
-```python
-class Box(Generic[T]):
-```
-
-matlab:
-
-```text
-Box ek template hai
-       ↓
-T placeholder hai
-       ↓
-Box[str]
-Box[int]
-Box[float]
-```
-
-Ye C++/Java ke generics ke concept se related hai.
-
----
-
-# 19. `Protocol[T]` ka mental model
-
-```python
-class Reader(Protocol[T]):
-    def read(self) -> T:
-        ...
-```
-
-matlab:
-
-```text
-Reader[T]
-   │
-   ├── required behavior: read()
-   │
-   └── output type: T
-```
-
-So:
-
-```text
-Reader[float]
-→ read() returns float
-
-Reader[str]
-→ read() returns str
-```
-
----
-
-# 20. Tumhare HVAC project mein iska use
-
-Imagine BMS mein multiple point readers:
+## 20. HVAC Point Readers
 
 ```python
 class PointReader(Protocol[T]):
-
-    def read(self, point_name: str) -> T:
-        ...
+    def read(self, point_name: str) -> T: ...
 ```
 
-Temperature:
+## 21. Protocol Runtime Nahi
 
 ```python
-class TemperatureReader:
-
-    def read(self, point_name: str) -> float:
-        return 22.4
+reader = PointReader()  # Nahi
 ```
 
-Status:
+**Explanation:**
+- Contract define karna
 
-```python
-class StatusReader:
+## 22. Mental Model
 
-    def read(self, point_name: str) -> str:
-        return "ON"
 ```
-
-Boolean:
-
-```python
-class AlarmReader:
-
-    def read(self, point_name: str) -> bool:
-        return False
-```
-
-Same conceptual interface:
-
-```text
-read(point_name)
-```
-
-Different data:
-
-```text
-float
-str
-bool
+TypeVar → T placeholder
+Generic → reusable type-aware
+Protocol → required structure
+Generic + Protocol → reusable + structural + type-safe
 ```
 
 ---
-
-# 21. Ek important distinction
-
-Ye:
-
-```python
-class PointReader(Protocol[T]):
-```
-
-**runtime object create karne ke liye normal class nahi hai.**
-
-Usually tum:
-
-```python
-reader = PointReader()
-```
-
-nahi karoge.
-
-Protocol ka purpose contract/type interface define karna hai.
-
-Actual implementation:
-
-```python
-class TemperatureReader:
-    ...
-```
-
-provide karegi.
-
----
-
-# 22. Aaj ka complete mental model
-
-```text
-TypeVar
-   ↓
-T = type placeholder
-
-Generic
-   ↓
-class/function ko reusable type-aware banata hai
-
-Protocol
-   ↓
-required structure/interface define karta hai
-
-Generic + Protocol
-   ↓
-reusable + structural + type-safe interface
-```
-
-Example:
-
-```python
-T = TypeVar("T")
-
-class Reader(Protocol[T]):
-
-    def read(self) -> T:
-        ...
-```
-
-Iska matlab:
-
-> **"Mujhe aisa object do jo `read()` provide karta ho, aur jo type read karega woh T hoga."**
-
----
-
-### Next: Lesson 38
-
-Agla important topic hoga:
-
-**`Callable` + generic types + `ParamSpec`**
-
-Ismein hum dekhenge ke Python mein **function ko bhi type ke taur par kaise describe karte hain**, aur decorators mein `*args/**kwargs` ki exact typing kaise hoti hai.
 
 # Lesson 38: `Callable` + `ParamSpec` + Generic Functions
 
-Ab hum Python typing ka ek important advanced topic karte hain:
-
-```text
-Callable
-   ↓
-function ka type describe karta hai
-
-ParamSpec
-   ↓
-function ke parameters ko preserve karta hai
-
-TypeVar
-   ↓
-input/output types ko preserve karta hai
-```
-
-Ye specially **decorators** aur higher-order functions mein bohat useful hai.
-
----
-
-## 1. `Callable` kya hai?
-
-Tumne pehle `Callable` ka naam dekha tha.
-
-Simple meaning:
-
-> **`Callable` kisi callable object/function ka type describe karta hai.**
-
-Example:
+## 1. `Callable`
 
 ```python
 from collections.abc import Callable
-```
 
-Ab:
-
-```python
 def add(a: int, b: int) -> int:
     return a + b
 ```
 
-Is function ka conceptual type:
-
-```text
+**Type:**
+```
 Callable[[int, int], int]
 ```
 
-Meaning:
-
-```text
-Callable[
-    [input types],
-    output type
-]
-```
-
-So:
+## 2. Basic Example
 
 ```python
-Callable[[int, int], int]
-```
-
-ka matlab:
-
-> Aisa callable jo 2 `int` inputs leta hai aur `int` return karta hai.
-
----
-
-# 2. Basic example
-
-```python
-from collections.abc import Callable
-
 def execute(
     func: Callable[[int, int], int],
     a: int,
     b: int
 ) -> int:
     return func(a, b)
+
+execute(add, 10, 20)   # 30
 ```
 
-Function:
+## 3. `Callable` Box
+
+```
+Callable → inputs → output
+```
+
+## 4. Different Examples
 
 ```python
-def add(a: int, b: int) -> int:
-    return a + b
+Callable[[], str]           # No args
+Callable[[str], int]        # One arg
+Callable[[str, int], bool]  # Multiple
 ```
 
-Use:
-
-```python
-result = execute(add, 10, 20)
-```
-
-Output:
-
-```text
-30
-```
-
-Yahan:
-
-```text
-add
- ↓
-(int, int) → int
-```
-
-isliye `Callable[[int, int], int]` match karta hai.
-
----
-
-# 3. `Callable` ko function ke box ki tarah samjho
-
-```text
-Callable
-   │
-   ├── inputs
-   │     ├── int
-   │     └── int
-   │
-   └── output
-         ↓
-        int
-```
-
-Example:
-
-```python
-Callable[[str], int]
-```
-
-means:
-
-```text
-str input
-   ↓
-function
-   ↓
-int output
-```
-
----
-
-# 4. Different examples
-
-### No arguments
-
-```python
-Callable[[], str]
-```
-
-Meaning:
-
-```text
-()
- ↓
-str
-```
-
-Example:
-
-```python
-def get_status() -> str:
-    return "Running"
-```
-
----
-
-### One argument
-
-```python
-Callable[[str], int]
-```
-
-Example:
-
-```python
-def get_length(text: str) -> int:
-    return len(text)
-```
-
----
-
-### Multiple arguments
-
-```python
-Callable[[str, int], bool]
-```
-
-Example:
-
-```python
-def check_name(name: str, minimum: int) -> bool:
-    return len(name) >= minimum
-```
-
----
-
-# 5. Problem with decorators
-
-Ab decorator ka example dekho:
+## 5. Decorator Problem
 
 ```python
 def logger(func):
-
     def wrapper(*args, **kwargs):
-        print("Before")
-        result = func(*args, **kwargs)
-        print("After")
-        return result
-
+        return func(*args, **kwargs)
     return wrapper
 ```
 
-Runtime par ye perfectly kaam karta hai.
+**Explanation:**
+- Type checker ko `*args` types unclear
 
-Lekin type checker ke liye problem hai:
-
-```python
-*args
-**kwargs
-```
-
-ki exact types kya hain?
-
-Agar original function:
-
-```python
-def add(a: int, b: int) -> int:
-```
-
-hai to wrapper ko ideally ye information preserve karni chahiye:
-
-```text
-(int, int) → int
-```
-
-Yahan **ParamSpec** ka role aata hai.
-
----
-
-# 6. `ParamSpec`
+## 6. `ParamSpec`
 
 ```python
 from typing import ParamSpec
-```
 
-Phir:
-
-```python
 P = ParamSpec("P")
 ```
 
-`P` ka matlab:
+**Explanation:**
+- Function ke parameters capture
 
-> **Function ke complete parameter specification ko capture karo.**
+## 7. `TypeVar` vs `ParamSpec`
 
-Ye `TypeVar` se different hai.
-
----
-
-# 7. `TypeVar` vs `ParamSpec`
-
-### `TypeVar`
-
-Type represent karta hai:
-
-```python
-T = TypeVar("T")
+```
+TypeVar → type
+ParamSpec → parameters
 ```
 
-Example:
-
-```python
-def identity(value: T) -> T:
-    return value
-```
-
-Yahan:
-
-```text
-T = input/output type
-```
-
----
-
-### `ParamSpec`
-
-Function ke **parameters ka complete signature** represent karta hai:
-
-```python
-P = ParamSpec("P")
-```
-
-Yani:
-
-```text
-P = (a: int, b: int)
-```
-
-ya:
-
-```text
-P = (name: str, age: int)
-```
-
-ya:
-
-```text
-P = (*args, **kwargs)
-```
-
-ka type-level representation.
-
----
-
-# 8. Decorator ko properly type karna
-
-Modern Python mein:
+## 8. Decorator Typing
 
 ```python
 from collections.abc import Callable
@@ -5768,72 +2137,27 @@ from functools import wraps
 
 P = ParamSpec("P")
 R = TypeVar("R")
-```
 
-Decorator:
-
-```python
-def logger(
-    func: Callable[P, R]
-) -> Callable[P, R]:
-
+def logger(func: Callable[P, R]) -> Callable[P, R]:
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         print("Before")
-
         result = func(*args, **kwargs)
-
         print("After")
-
         return result
-
     return wrapper
 ```
 
-Ye advanced decorator typing hai.
-
----
-
-# 9. Isko line by line samjho
-
-Sabse important line:
+## 9. Line by Line
 
 ```python
-func: Callable[P, R]
+func: Callable[P, R]  # Parameters P, return R
+*args: P.args         # Positional preserve
+**kwargs: P.kwargs    # Keyword preserve
+-> R                  # Return preserve
 ```
 
-Meaning:
-
-> `func` koi bhi callable hai jiske parameters `P` hain aur return type `R` hai.
-
-Then:
-
-```python
-wrapper(
-    *args: P.args,
-    **kwargs: P.kwargs
-)
-```
-
-Meaning:
-
-> Original function ke parameters exactly preserve karo.
-
-And:
-
-```python
--> R
-```
-
-Meaning:
-
-> Wrapper bhi wahi return type preserve karega.
-
----
-
-# 10. Example
-
-Original:
+## 10. Example
 
 ```python
 @logger
@@ -5841,27 +2165,12 @@ def add(a: int, b: int) -> int:
     return a + b
 ```
 
-Type information:
-
-```text
-Original:
-
-(int, int) → int
+**Type:**
+```
+(int, int) → int (preserved)
 ```
 
-Decorator ke baad:
-
-```text
-wrapper:
-
-(int, int) → int
-```
-
-So decorator ne function ke signature ko conceptually preserve kiya.
-
----
-
-# 11. Another example
+## 11. Another Example
 
 ```python
 @logger
@@ -5869,129 +2178,26 @@ def greet(name: str, age: int) -> str:
     return f"{name}: {age}"
 ```
 
-Original:
-
-```text
+**Type:**
+```
 (str, int) → str
 ```
 
-Decorator ke baad bhi:
+## 12. `P.args` / `P.kwargs`
 
-```text
-(str, int) → str
+```
+P.args → positional
+P.kwargs → keyword
 ```
 
-`P` capture karta hai:
-
-```text
-P = (str, int)
-```
-
-Aur:
-
-```text
-R = str
-```
-
----
-
-# 12. `P.args` aur `P.kwargs`
-
-Ye bohat important hai.
+## 13. `ParamSpec` Zaroorat
 
 ```python
-*args: P.args
+Callable[..., R]     # Parameters unknown
+Callable[P, R]       # Parameters preserved
 ```
 
-means:
-
-> Original positional parameters preserve karo.
-
-Aur:
-
-```python
-**kwargs: P.kwargs
-```
-
-means:
-
-> Original keyword parameters preserve karo.
-
-Example original:
-
-```python
-def equipment(
-    equipment_id: str,
-    temperature: float,
-    mode: str
-):
-    ...
-```
-
-Decorator ke andar:
-
-```python
-*args: P.args
-**kwargs: P.kwargs
-```
-
-original function ka parameter structure represent karega.
-
----
-
-# 13. `ParamSpec` ki zaroorat kyun?
-
-Without `ParamSpec`, tum kuch aisa likh sakte ho:
-
-```python
-def logger(func: Callable[..., R]) -> Callable[..., R]:
-    ...
-```
-
-`...` ka matlab roughly:
-
-> parameters ke exact types specify nahi kiye.
-
-Ye less precise hai.
-
-```python
-Callable[..., R]
-```
-
-versus:
-
-```python
-Callable[P, R]
-```
-
-Difference:
-
-```text
-... 
-↓
-parameters unknown / unspecified
-
-P
-↓
-parameters preserve karo
-```
-
----
-
-# 14. HVAC example
-
-Suppose:
-
-```python
-def set_temperature(
-    equipment_id: str,
-    temperature: float
-) -> bool:
-    print(equipment_id, temperature)
-    return True
-```
-
-Decorator:
+## 14. HVAC Example
 
 ```python
 @logger
@@ -6002,946 +2208,270 @@ def set_temperature(
     ...
 ```
 
-Conceptually:
-
-```text
-P
-↓
-(str, float)
-
-R
-↓
-bool
+**Type:**
+```
+P = (str, float)
+R = bool
 ```
 
-Therefore:
+## 15. `TypeVar` + `ParamSpec`
 
-```text
-Callable[P, R]
 ```
-
-becomes:
-
-```text
-Callable[[str, float], bool]
-```
-
----
-
-# 15. `TypeVar` + `ParamSpec`
-
-Dono ka difference ek example se:
-
-```python
-T = TypeVar("T")
-P = ParamSpec("P")
-```
-
-### `T`
-
-```text
-"What type?"
-```
-
-### `P`
-
-```text
-"What parameters?"
-```
-
-### `R`
-
-```text
-"What return type?"
-```
-
-Together:
-
-```text
+T → type
 P → parameters
 R → return
 ```
 
-Decorator:
+## 16. Mental Model
 
-```python
-Callable[P, R]
+```
+Original:  P → function → R
+Decorator: P → wrapper → R
 ```
 
----
-
-# 16. Function transformation ka mental model
-
-Decorator ko is tarah dekho:
-
-```text
-Original function
-
-P → function → R
-        │
-        │ decorator
-        ↓
-Wrapper
-
-P → wrapper → R
-```
-
-Decorator original parameters aur return type ko preserve kar raha hai.
-
----
-
-# 17. `Callable` sirf normal functions ke liye nahi
-
-Ye callable objects ke liye bhi ho sakta hai.
-
-Example:
+## 17. `Callable` Objects
 
 ```python
 class Calculator:
-
     def __call__(self, a: int, b: int) -> int:
         return a + b
-```
 
-Object:
-
-```python
 calc = Calculator()
-```
-
-Ab:
-
-```python
 calc(10, 20)
 ```
 
-callable hai.
-
-So:
+## 18. Protocol + Callable
 
 ```python
-callable(calc)
-```
-
-returns:
-
-```text
-True
-```
-
-`Callable` concept functions + callable objects dono cover kar sakta hai.
-
----
-
-# 18. `Protocol` + `Callable`
-
-Ab tumhare previous lesson ka connection dekho.
-
-Agar tumhe callable object ka interface define karna ho:
-
-```python
-from typing import Protocol
-
 class Command(Protocol):
-
-    def __call__(self, equipment_id: str) -> bool:
-        ...
+    def __call__(self, equipment_id: str) -> bool: ...
 ```
 
-Ab koi callable object jo:
+## 19. Three Together
 
-```text
-__call__(str) → bool
+```
+Protocol → capability
+Callable → shape
+ParamSpec → parameters
+TypeVar → types
 ```
 
-provide karta hai, structurally compatible ho sakta hai.
+## 20. Comparison
 
----
+| Concept | Kya |
+|---------|-----|
+| `TypeVar` | Generic type |
+| `ParamSpec` | Parameters |
+| `Callable` | Input/output shape |
+| `Protocol` | Required structure |
+| `Generic` | Type-aware reusable |
 
-# 19. Three concepts together
-
-Ab architecture:
-
-```text
-Protocol
-   ↓
-Required capability
-
-Callable
-   ↓
-Function/callable ka shape
-
-ParamSpec
-   ↓
-Parameters preserve
-
-TypeVar
-   ↓
-Types preserve
-```
-
----
-
-# 20. Sabse important comparison
-
-| Concept     | Kya represent karta hai?           |
-| ----------- | ---------------------------------- |
-| `TypeVar`   | Ek generic type                    |
-| `ParamSpec` | Function ke parameters             |
-| `Callable`  | Callable ka input/output shape     |
-| `Protocol`  | Required structure/interface       |
-| `Generic`   | Type-aware reusable class/function |
-
----
-
-# 21. Ek practical decorator yaad rakho
+## 21. Decorator Yaad
 
 ```python
-from collections.abc import Callable
-from functools import wraps
-from typing import ParamSpec, TypeVar
-
-P = ParamSpec("P")
-R = TypeVar("R")
-
-
 def logger(func: Callable[P, R]) -> Callable[P, R]:
-
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        print("Before")
-        result = func(*args, **kwargs)
-        print("After")
-        return result
-
+        ...
     return wrapper
 ```
 
-Isko abhi memorize karne ki zaroorat nahi.
+## 22. Final Mental Model
 
-Bas ye architecture samjho:
-
-```text
-func
- ↓
-Callable[P, R]
- ↓
-P = parameters
-R = return type
- ↓
-wrapper
- ↓
-Callable[P, R]
+```
+TypeVar → "T kya type?"
+ParamSpec → "Parameters kya?"
+Callable → "Input/output?"
+Protocol → "Capability?"
+Generic → "Reusable?"
 ```
 
 ---
-
-## Final mental model
-
-```text
-TypeVar
-"T kya type hai?"
-
-ParamSpec
-"Function ke parameters kya hain?"
-
-Callable
-"Ye function kya inputs leta hai aur kya output deta hai?"
-
-Protocol
-"Object ko kaunsi capability provide karni hai?"
-
-Generic
-"Is design ko different types ke saath reusable banao."
-```
-
-### Next Lesson 39
-
-**`TypeVar` ke bounds aur constraints**:
-
-```python
-T = TypeVar("T", bound=...)
-```
-
-vs
-
-```python
-T = TypeVar("T", int, float, str)
-```
-
-Aur hum dekhenge:
-
-**`bound` vs `constraints` exactly kya difference hai, aur static type checker kis situation mein kya infer karta hai.**
 
 # Lesson 39: `TypeVar` — `bound` vs `constraints`
 
-Ab hum `TypeVar` ko deeper level par samjhenge. Ye important hai kyun ke:
-
-```python
-T = TypeVar("T")
-```
-
-ke ilawa tum ye bhi likh sakte ho:
-
-```python
-T = TypeVar("T", bound=...)
-```
-
-ya:
-
-```python
-T = TypeVar("T", int, float)
-```
-
-Dono ka purpose different hai.
-
----
-
 ## 1. Simple `TypeVar`
 
-Pehle:
-
 ```python
-from typing import TypeVar
-
 T = TypeVar("T")
 ```
 
-Yahan `T` basically unrestricted hai.
+**Explanation:**
+- Unrestricted
 
-Example:
-
-```python
-def identity(value: T) -> T:
-    return value
-```
-
-Agar:
-
-```python
-identity(10)
-```
-
-to:
-
-```text
-T = int
-```
-
-Agar:
-
-```python
-identity("Ali")
-```
-
-to:
-
-```text
-T = str
-```
-
-Yani:
-
-```text
-T = jo type input mein aayi
-```
-
----
-
-# 2. `bound` kya karta hai?
-
-Syntax:
+## 2. `bound`
 
 ```python
 T = TypeVar("T", bound=SomeType)
 ```
 
-Meaning:
+**Explanation:**
+- `SomeType` ya subclass
 
-> `T` koi bhi type ho sakti hai, **lekin `SomeType` ya uski subclass honi chahiye.**
-
-Important word:
-
-> **upper bound**
-
----
-
-# 3. Example: `Animal`
+## 3. `Animal` Example
 
 ```python
 class Animal:
-
     def speak(self):
         print("Animal sound")
-```
-
-Ab:
-
-```python
-T = TypeVar("T", bound=Animal)
-```
-
-Matlab:
-
-```text
-T
-↓
-Animal ya Animal ki subclass
-```
-
-Example:
-
-```python
-class Dog(Animal):
-    pass
-
-
-class Cat(Animal):
-    pass
-```
-
-Ab:
-
-```python
-def get_animal(animal: T) -> T:
-    return animal
-```
-
-Ye valid conceptually hai:
-
-```python
-dog = get_animal(Dog())
-```
-
-Type:
-
-```text
-Dog
-```
-
-Aur:
-
-```python
-cat = get_animal(Cat())
-```
-
-Type:
-
-```text
-Cat
-```
-
----
-
-# 4. Bound ka important benefit
-
-Dekho:
-
-```python
-class Animal:
-
-    def speak(self):
-        print("Animal")
-
 
 T = TypeVar("T", bound=Animal)
+```
 
+**Explanation:**
+- `T` → Animal ya subclass
 
+## 4. Bound Benefit
+
+```python
 def make_sound(animal: T) -> T:
     animal.speak()
     return animal
 ```
 
-Type checker ko pata hai:
+**Explanation:**
+- `T <: Animal` → `speak()` allowed
 
-```text
-T <: Animal
-```
-
-Isliye:
-
-```python
-animal.speak()
-```
-
-allowed hai.
-
-Kyun?
-
-Kyun ke har valid `T` ke paas `Animal` ka interface available hona chahiye.
-
----
-
-# 5. `T` exact subclass preserve karta hai
-
-Ye important point hai.
-
-```python
-def identity(value: T) -> T:
-    return value
-```
-
-Aur:
+## 5. Subclass Preserve
 
 ```python
 dog = Dog()
 result = identity(dog)
 ```
 
-`result` ko type checker `Dog` ke taur par preserve kar sakta hai.
+**Explanation:**
+- `result` → `Dog` (not just `Animal`)
 
-Bound ke saath bhi:
-
-```python
-T = TypeVar("T", bound=Animal)
-```
-
-to:
-
-```text
-Dog → T = Dog
-Cat → T = Cat
-```
-
-Na ke har cheez ko simply `Animal` bana de.
-
----
-
-# 6. Ab `constraints`
-
-Syntax:
+## 6. Constraints
 
 ```python
 T = TypeVar("T", int, float)
 ```
 
-Iska meaning:
+**Explanation:**
+- Sirf `int` ya `float`
 
-> `T` sirf specified types mein se ek ho sakti hai.
+## 7. Bound vs Constraints
 
-Yahan:
-
-```text
-T ∈ {int, float}
+**Bound:**
+```
+Animal → Dog, Cat, Horse...
 ```
 
-Example:
-
-```python
-T = TypeVar("T", int, float)
-
-def double(value: T) -> T:
-    return value * 2
+**Constraints:**
+```
+int, float (fixed)
 ```
 
-Valid:
+## 8. Visual
 
-```python
-double(10)
-double(2.5)
+**Bound:**
 ```
-
-Lekin:
-
-```python
-double("Ali")
-```
-
-type checker reject karega.
-
----
-
-# 7. `bound` vs `constraints`
-
-Sabse important comparison:
-
-### Bound
-
-```python
-T = TypeVar("T", bound=Animal)
-```
-
-Meaning:
-
-```text
 Animal
-├── Dog
-├── Cat
-├── Horse
-└── ...
+/      \
+Dog      Cat
 ```
 
-**Animal ya koi subclass.**
-
----
-
-### Constraints
-
-```python
-T = TypeVar("T", int, float)
+**Constraints:**
 ```
-
-Meaning:
-
-```text
-sirf int
-ya
-float
-```
-
-Fixed choices.
-
----
-
-# 8. Visual difference
-
-### Bound
-
-```text
-          Animal
-         /      \
-       Dog      Cat
-        \
-       Puppy
-
-T = Animal ya Dog ya Cat ya Puppy...
-```
-
-### Constraints
-
-```text
 T
 ├── int
 └── float
 ```
 
-No arbitrary subclasses outside the listed choices.
-
----
-
-# 9. Real difference with subclasses
-
-Ye subtle point important hai.
-
-Suppose:
+## 9. Subclass Difference
 
 ```python
-class Animal:
-    pass
-
-class Dog(Animal):
-    pass
-
-class Cat(Animal):
-    pass
+T = TypeVar("T", bound=Animal)   # Dog, Cat OK
+T = TypeVar("T", Dog, Cat)       # Only Dog, Cat
 ```
 
-With bound:
-
-```python
-T = TypeVar("T", bound=Animal)
-```
-
-`Dog`, `Cat`, etc. acceptable hain.
-
-But constraints:
-
-```python
-T = TypeVar("T", Dog, Cat)
-```
-
-means:
-
-```text
-Dog
-or
-Cat
-```
-
-specifically constrained choices.
-
----
-
-# 10. Constraint type inference
-
-Suppose:
+## 10. Constraint Inference
 
 ```python
 T = TypeVar("T", int, float)
 
 def get_value(value: T) -> T:
     return value
+
+get_value(10)     # int
+get_value(10.5)   # float
 ```
 
-Agar:
+## 11. Bound + Protocol
 
 ```python
-result = get_value(10)
-```
-
-then `int`.
-
-Agar:
-
-```python
-result = get_value(10.5)
-```
-
-then `float`.
-
-Lekin constraints ka behavior bound se different ho sakta hai jab subclasses involve hon.
-
-Isliye constraints ko:
-
-> **fixed allowed type categories**
-
-samajhna useful hai.
-
----
-
-# 11. Bound ka powerful example: `Comparable`
-
-Suppose:
-
-```python
-from typing import TypeVar
-
-T = TypeVar("T", bound="Comparable")
-```
-
-Conceptually hum keh rahe hain:
-
-```text
-T ko Comparable capability/type hierarchy ke andar hona chahiye.
-```
-
-Lekin Python typing mein interface-like behavior ke liye `Protocol` aksar zyada suitable hota hai.
-
-Example:
-
-```python
-from typing import Protocol, TypeVar
-
-
-class Comparable(Protocol):
-
-    def __lt__(self, other) -> bool:
-        ...
-```
-
-Then generic design can require that capability.
-
-Ye `Protocol` ke saath `TypeVar` ka connection hai.
-
----
-
-# 12. Bound + Protocol
-
-Ab advanced combination:
-
-```python
-from typing import Protocol, TypeVar
-
-
 class HasID(Protocol):
-
     id: int
-
 
 T = TypeVar("T", bound=HasID)
 ```
 
-Meaning:
-
-> `T` aisa type hona chahiye jo `HasID` structure satisfy kare.
-
-Example:
-
-```python
-class Employee:
-
-    def __init__(self, id: int):
-        self.id = id
-```
-
-Employee compatible ho sakta hai.
-
----
-
-# 13. HVAC example
-
-Suppose:
+## 12. HVAC Example
 
 ```python
 class Equipment:
-
     def start(self):
         print("Started")
-```
 
-Subclasses:
-
-```python
-class AHU(Equipment):
-    pass
-
-
-class VAV(Equipment):
-    pass
-```
-
-Generic function:
-
-```python
 T = TypeVar("T", bound=Equipment)
-
 
 def start_equipment(equipment: T) -> T:
     equipment.start()
     return equipment
+
+ahu = start_equipment(AHU())   # AHU
+vav = start_equipment(VAV())   # VAV
 ```
 
-Ab:
+## 13. Simple vs Generic
 
 ```python
-ahu = start_equipment(AHU())
-```
-
-Type:
-
-```text
-AHU
-```
-
-Aur:
-
-```python
-vav = start_equipment(VAV())
-```
-
-Type:
-
-```text
-VAV
-```
-
-Yahan `bound=Equipment` ensure karta hai ke `T` ke paas `Equipment` ka behavior available ho.
-
----
-
-# 14. Ye simple `Equipment` annotation se different hai
-
-Tum ye bhi kar sakte ho:
-
-```python
+# Simple
 def start_equipment(equipment: Equipment) -> Equipment:
-    equipment.start()
-    return equipment
-```
+    ...
 
-Lekin phir return type generic subclass ko preserve nahi karta in the same way.
-
-Generic version:
-
-```python
+# Generic
 def start_equipment(equipment: T) -> T:
-```
-
-means:
-
-```text
-Input:
-AHU
-
-Output:
-AHU
-```
-
-not merely:
-
-```text
-Equipment
-```
-
-Ye **type preservation** hai.
-
----
-
-# 15. `bound` ka mental model
-
-```text
-T = TypeVar("T", bound=Equipment)
-```
-
-ko read karo:
-
-> "`T` koi bhi type ho sakti hai, bas `Equipment` ki boundary ke andar honi chahiye."
-
-Diagram:
-
-```text
-T
-↓
-Equipment
-├── AHU
-├── VAV
-├── Chiller
-└── Pump
-```
-
----
-
-# 16. Constraints ka mental model
-
-```python
-T = TypeVar("T", int, float)
-```
-
-ko read karo:
-
-> "`T` sirf in listed types mein se ek ho."
-
-Diagram:
-
-```text
-T
-├── int
-└── float
-```
-
----
-
-# 17. `bound` vs `Union`
-
-Ye bhi important comparison hai.
-
-### Union
-
-```python
-def process(value: int | float):
     ...
 ```
 
-Meaning:
+**Explanation:**
+- Generic → subtype preserve
 
-> Function ko `int` ya `float` mil sakta hai.
+## 14. Bound Mental Model
 
-### TypeVar
+```
+T → Equipment boundary
+   ├── AHU
+   ├── VAV
+   └── Chiller
+```
+
+## 15. Constraints Mental Model
+
+```
+T → int, float (fixed)
+```
+
+## 16. Bound vs Union
 
 ```python
+# Union
+def process(value: int | float): ...
+
+# TypeVar
 T = TypeVar("T", int, float)
 
 def process(value: T) -> T:
     return value
 ```
 
-Meaning:
+**Explanation:**
+- Union → possibilities
+- TypeVar → relationship preserve
 
-> Input type ko preserve karne ki generic relationship hai.
-
----
-
-# 18. Example
+## 17. Example
 
 ```python
 T = TypeVar("T", int, float)
@@ -6950,201 +2480,60 @@ def same(value: T) -> T:
     return value
 ```
 
-Conceptually:
-
-```text
-same(10)
-↓
-int → int
-
-same(2.5)
-↓
-float → float
+```
+same(10)   # int → int
+same(2.5)  # float → float
 ```
 
-Ye generic relationship hai.
+## 18. Comparison
 
----
+| Concept | Meaning |
+|---------|---------|
+| `TypeVar("T")` | Any type |
+| `bound=Animal` | Animal ya subclass |
+| `TypeVar("T", int, float)` | Fixed choices |
+| `int \| float` | Value possibilities |
 
-# 19. `bound` vs `constraints` vs `Union`
+## 19. Practical Rule
 
-| Concept                    | Meaning                         |
-| -------------------------- | ------------------------------- |
-| `T = TypeVar("T")`         | Any type, relationship preserve |
-| `bound=Animal`             | Animal ya subclass              |
-| `TypeVar("T", int, float)` | Listed type choices             |
-| `int \| float`             | Value can be int or float       |
-
-Sabse important difference:
-
-```text
-Union
-→ allowed possibilities
-
-TypeVar
-→ type relationship
-
-bound
-→ TypeVar ki upper boundary
-
-constraints
-→ TypeVar ki fixed choices
+```
+"Koi bhi type"         → T = TypeVar("T")
+"Subclass of X"        → T = TypeVar("T", bound=X)
+"Sirf ye types"        → T = TypeVar("T", int, float)
+"Value int/float"      → int | float
 ```
 
----
-
-# 20. Practical rule
-
-Jab tumhare mind mein ye ho:
-
-### "Koi bhi type"
+## 20. Complete Example
 
 ```python
-T = TypeVar("T")
-```
-
-### "Koi bhi subclass of X"
-
-```python
-T = TypeVar("T", bound=X)
-```
-
-### "Sirf ye specific types"
-
-```python
-T = TypeVar("T", int, float)
-```
-
-### "Value sirf in types mein se ho sakti hai"
-
-```python
-int | float
-```
-
----
-
-# 21. One complete example
-
-```python
-from typing import TypeVar
-
-
-class Equipment:
-
-    def start(self):
-        print("Equipment started")
-
-
-class AHU(Equipment):
-    pass
-
-
-class VAV(Equipment):
-    pass
-
-
 T = TypeVar("T", bound=Equipment)
-
 
 def start_equipment(equipment: T) -> T:
     equipment.start()
     return equipment
+
+ahu = start_equipment(AHU())   # T = AHU
+vav = start_equipment(VAV())   # T = VAV
+start_equipment("hello")       # Error
 ```
 
-Use:
+## 21. Final Mental Model
 
-```python
-ahu = start_equipment(AHU())
-vav = start_equipment(VAV())
 ```
-
-Conceptually:
-
-```text
-AHU
- ↓
-T = AHU
- ↓
-AHU return
-
-
-VAV
- ↓
-T = VAV
- ↓
-VAV return
-```
-
-Aur:
-
-```python
-start_equipment("hello")
-```
-
-type checker ke perspective se incorrect hai, kyun ke:
-
-```text
-str
- ↓
-Equipment ki subclass nahi
+TypeVar → generic placeholder
+bound → upper boundary
+constraints → fixed choices
+T + input/output → relationship preserve
 ```
 
 ---
-
-## Final mental model
-
-```text
-TypeVar
-   ↓
-generic placeholder
-
-TypeVar + bound
-   ↓
-placeholder with upper boundary
-
-TypeVar + constraints
-   ↓
-placeholder with fixed allowed types
-
-T + input/output
-   ↓
-type relationship preserve
-```
-
-### Ek line mein:
-
-> **`bound` inheritance/capability ki boundary deta hai, jab ke `constraints` fixed allowed types ki list dete hain.**
-
-### Next Lesson 40
-
-Ab hum **`TypedDict` deeply** karenge:
-
-```python
-class EmployeeData(TypedDict):
-    name: str
-    salary: float
-    department: str
-```
-
-Aur samjhenge **`TypedDict` vs `dict` vs `dataclass` vs normal class**, `Required`, `NotRequired`, `total=False`, aur nested `TypedDict`.
 
 # Lesson 40: `TypedDict` — Deep Understanding
 
-Ab hum `TypedDict` ko properly samjhenge, kyun ke ye tumhare **CSV, Google Sheets, API JSON aur work-order data** ke liye bohat useful hai.
-
----
-
-## 1. `TypedDict` kya hai?
-
-Simple definition:
-
-> **`TypedDict` ek dictionary ki expected structure/type define karta hai.**
-
-Example:
+## 1. `TypedDict` Kya Hai?
 
 ```python
 from typing import TypedDict
-
 
 class EmployeeData(TypedDict):
     name: str
@@ -7152,44 +2541,16 @@ class EmployeeData(TypedDict):
     department: str
 ```
 
-Ab expected dictionary:
+**Explanation:**
+- Dictionary structure define
+
+## 2. Normal `dict` vs `TypedDict`
 
 ```python
-employee = {
-    "name": "Ali",
-    "salary": 5000.0,
-    "department": "HVAC"
-}
-```
+# Normal
+employee: dict = {"name": "Ali", "salary": 5000}
 
-Conceptually:
-
-```text
-EmployeeData
-│
-├── name       → str
-├── salary     → float
-└── department → str
-```
-
----
-
-# 2. Ye normal `dict` se different kyun?
-
-Normal:
-
-```python
-employee: dict = {
-    "name": "Ali",
-    "salary": 5000
-}
-```
-
-Type checker ko exact structure ka pata nahi.
-
-`TypedDict`:
-
-```python
+# TypedDict
 employee: EmployeeData = {
     "name": "Ali",
     "salary": 5000.0,
@@ -7197,107 +2558,38 @@ employee: EmployeeData = {
 }
 ```
 
-Ab type checker ko pata hai:
-
-```text
-name       → str
-salary     → float
-department → str
-```
-
----
-
-# 3. Sabse important: Runtime par kya hai?
-
-Ye point bohat important hai.
-
-`TypedDict` **normal runtime dictionary ko special object nahi banata**.
-
-Example:
+## 3. Runtime Par
 
 ```python
-employee = EmployeeData(
-    name="Ali",
-    salary=5000.0,
-    department="HVAC"
-)
-```
-
-Runtime par ye basically dictionary hi hoti hai.
-
-```python
+employee = EmployeeData(name="Ali", salary=5000.0, department="HVAC")
 print(type(employee))
 ```
 
-conceptually:
-
-```text
+**Output:**
+```
 <class 'dict'>
 ```
 
-Yani:
+**Explanation:**
+- Runtime → normal dict
 
-```text
-TypedDict
-   ↓
-mainly static type checking
-   ↓
-runtime par normal dict
-```
-
----
-
-# 4. `TypedDict` actual validation nahi karta
-
-Suppose:
+## 4. Validation Nahi
 
 ```python
 employee: EmployeeData = {
     "name": "Ali",
-    "salary": "5000",
+    "salary": "5000",   # Wrong type
     "department": "HVAC"
 }
 ```
 
-`salary` ko `float` hona chahiye.
+**Explanation:**
+- Static type checker error
+- Runtime automatically reject nahi
 
-Static type checker error report kar sakta hai.
-
-Lekin normal Python runtime automatically:
-
-```text
-"5000"
-↓
-reject
-```
-
-nahi karega.
-
-Isliye:
-
-> `TypedDict` runtime validation library nahi hai.
-
----
-
-# 5. `TypedDict` kyun useful hai?
-
-Tumhare work-order data ko dekho:
-
-```text
-Work Order Number
-Code
-Description
-Area
-Floor
-Comment
-```
-
-Hum define kar sakte hain:
+## 5. Work Order Example
 
 ```python
-from typing import TypedDict
-
-
 class WorkOrder(TypedDict):
     work_order_number: str
     code: str
@@ -7307,158 +2599,55 @@ class WorkOrder(TypedDict):
     comment: str
 ```
 
-Ab:
+## 6. Key Typing
 
 ```python
-row: WorkOrder = {
-    "work_order_number": "WO-1001",
-    "code": "HVAC",
-    "description": "AHU inspection",
-    "area": "Mechanical Room",
-    "floor": "34",
-    "comment": "Normal"
-}
+data["salary"]   # float
+data["name"]     # str
 ```
 
-Type checker ko complete structure pata hai.
-
----
-
-# 6. Dictionary ki key typing
-
-Normal:
-
-```python
-data["salary"]
-```
-
-`TypedDict` ke saath:
-
-```python
-data["salary"]
-```
-
-type checker samajhta hai:
-
-```text
-salary → float
-```
-
-Aur:
-
-```python
-data["name"]
-```
-
-means:
-
-```text
-name → str
-```
-
----
-
-# 7. Missing key
-
-Agar:
-
-```python
-class EmployeeData(TypedDict):
-    name: str
-    salary: float
-    department: str
-```
-
-Aur:
+## 7. Missing Key
 
 ```python
 employee: EmployeeData = {
     "name": "Ali",
     "salary": 5000
+    # department missing
 }
 ```
 
-`department` missing hai.
+**Explanation:**
+- Static checker error
 
-Static type checker isko error report karega because default `TypedDict` fields required hote hain.
-
----
-
-# 8. Extra key
-
-Suppose:
+## 8. Extra Key
 
 ```python
 employee: EmployeeData = {
     "name": "Ali",
     "salary": 5000,
     "department": "HVAC",
-    "age": 30
+    "age": 30   # Extra
 }
 ```
 
-`age` defined structure mein nahi hai.
+**Explanation:**
+- Flag kar sakta hai
 
-Type checker context ke mutabiq isko unexpected key ke taur par flag kar sakta hai.
-
----
-
-# 9. `total=False`
-
-Ab maan lo kuch fields optional hon:
+## 9. `total=False`
 
 ```python
 class EmployeeData(TypedDict, total=False):
     name: str
     salary: float
     department: str
+
+employee: EmployeeData = {"name": "Ali"}   # OK
 ```
 
-Ab fields required nahi rahengi.
-
-Example:
-
-```python
-employee: EmployeeData = {
-    "name": "Ali"
-}
-```
-
-valid type-wise ho sakta hai.
-
-Mental model:
-
-```text
-total=True
-↓
-keys required by default
-
-total=False
-↓
-keys optional by default
-```
-
-Default:
-
-```python
-class EmployeeData(TypedDict):
-```
-
-roughly:
-
-```python
-total=True
-```
-
----
-
-# 10. `Required` aur `NotRequired`
-
-Modern typing mein tum individual fields ka behavior control kar sakte ho.
+## 10. `Required` / `NotRequired`
 
 ```python
 from typing import TypedDict, NotRequired
-
 
 class EmployeeData(TypedDict):
     name: str
@@ -7466,29 +2655,9 @@ class EmployeeData(TypedDict):
     comment: NotRequired[str]
 ```
 
-Ab:
+## 11. Mix
 
 ```python
-employee = {
-    "name": "Ali",
-    "salary": 5000
-}
-```
-
-valid structure hai.
-
-`comment` optional hai.
-
----
-
-# 11. Required + optional mix
-
-Example:
-
-```python
-from typing import TypedDict, NotRequired
-
-
 class WorkOrder(TypedDict):
     work_order_number: str
     code: str
@@ -7498,88 +2667,32 @@ class WorkOrder(TypedDict):
     comment: NotRequired[str]
 ```
 
-Yahan:
-
-```text
-Required:
-├── work_order_number
-├── code
-├── description
-├── area
-└── floor
-
-Optional:
-└── comment
-```
-
----
-
-# 12. `Required`
-
-Agar overall `total=False` ho:
+## 12. `Required`
 
 ```python
-from typing import TypedDict, Required
-
-
 class WorkOrder(TypedDict, total=False):
     work_order_number: Required[str]
     description: Required[str]
     comment: str
 ```
 
-Ab:
-
-```text
-Required:
-├── work_order_number
-└── description
-
-Optional:
-└── comment
-```
-
----
-
-# 13. `total=False` + `Required` / `NotRequired`
-
-Ye combination large API/data structures mein useful hai.
+## 13. Combination
 
 ```python
 class EquipmentData(TypedDict, total=False):
-
     equipment_id: Required[str]
     equipment_type: Required[str]
-
     temperature: float
     humidity: float
     comment: str
 ```
 
-Meaning:
-
-```text
-equipment_id     → required
-equipment_type   → required
-
-temperature      → optional
-humidity         → optional
-comment          → optional
-```
-
----
-
-# 14. Nested `TypedDict`
-
-Real JSON/API data usually nested hota hai.
-
-Example:
+## 14. Nested `TypedDict`
 
 ```python
 class Location(TypedDict):
     floor: str
     area: str
-
 
 class Equipment(TypedDict):
     equipment_id: str
@@ -7587,46 +2700,7 @@ class Equipment(TypedDict):
     location: Location
 ```
 
-Data:
-
-```python
-equipment: Equipment = {
-    "equipment_id": "AHU-01",
-    "equipment_type": "AHU",
-    "location": {
-        "floor": "34",
-        "area": "Mechanical Room"
-    }
-}
-```
-
-Ab:
-
-```python
-equipment["location"]["floor"]
-```
-
-type checker ko pata hai:
-
-```text
-str
-```
-
----
-
-# 15. API JSON example
-
-Suppose API response:
-
-```json
-{
-    "equipment_id": "AHU-01",
-    "status": "Running",
-    "temperature": 22.5
-}
-```
-
-Define:
+## 15. API JSON
 
 ```python
 class EquipmentResponse(TypedDict):
@@ -7635,335 +2709,94 @@ class EquipmentResponse(TypedDict):
     temperature: float
 ```
 
-Then:
+## 16. `TypedDict` vs `dataclass`
 
 ```python
-response: EquipmentResponse
-```
+# TypedDict
+employee = {"name": "Ali", "salary": 5000}
 
-Type information clear ho jati hai.
-
----
-
-# 16. `TypedDict` vs `dataclass`
-
-Ye important comparison hai.
-
-### TypedDict
-
-Data dictionary form mein:
-
-```python
-employee = {
-    "name": "Ali",
-    "salary": 5000
-}
-```
-
-Best when:
-
-* JSON
-* API response
-* CSV converted rows
-* Google Sheets records
-* dictionary-based data
-
----
-
-### Dataclass
-
-Object form:
-
-```python
-from dataclasses import dataclass
-
-
+# Dataclass
 @dataclass
 class Employee:
     name: str
     salary: float
-```
 
-Then:
-
-```python
 employee = Employee("Ali", 5000)
 ```
 
-Best when:
+**Rule:**
+- Dictionary → TypedDict
+- Behavior → dataclass
 
-* actual Python objects
-* methods
-* behavior
-* object-oriented design
+## 17. Visual
 
----
-
-# 17. Visual difference
-
-```text
-TypedDict
-
-{
-    "name": "Ali",
-    "salary": 5000
-}
+```
+TypedDict → {"name": "Ali", ...}
+Dataclass → Employee(name="Ali", ...)
 ```
 
-versus:
-
-```text
-Dataclass
-
-Employee(
-    name="Ali",
-    salary=5000
-)
-```
-
-Simple rule:
-
-> **Data dictionary hai → TypedDict**
-
-> **Behavior wala object hai → dataclass/class**
-
----
-
-# 18. `TypedDict` vs normal `dict`
-
-Normal:
+## 18. `TypedDict` vs `dict`
 
 ```python
+# dict
 data: dict[str, object]
-```
 
-Generic dictionary hai.
-
-`TypedDict`:
-
-```python
+# TypedDict
 class EmployeeData(TypedDict):
     name: str
     salary: float
 ```
 
-Specific structure hai.
+## 19. `TypedDict` vs `Protocol`
 
-```text
-dict
-↓
-generic structure
-
-TypedDict
-↓
-known keys + known value types
+```
+TypedDict → dictionary structure
+Protocol → object behavior
 ```
 
----
+## 20. `TypedDict` vs Normal Class
 
-# 19. `TypedDict` vs `Protocol`
-
-Ye bhi tumhare previous lessons se connect hota hai.
-
-### TypedDict
-
-Dictionary ki **data structure** define karta hai.
-
-```python
-class EmployeeData(TypedDict):
-    name: str
-    salary: float
+```
+Normal class → data + behavior
+TypedDict → data structure
 ```
 
-### Protocol
-
-Object ki **behavior/interface** define karta hai.
-
-```python
-class Startable(Protocol):
-
-    def start(self) -> None:
-        ...
-```
-
-Mental model:
-
-```text
-TypedDict
-→ "Dictionary mein kya data hai?"
-
-Protocol
-→ "Object kya kar sakta hai?"
-```
-
----
-
-# 20. `TypedDict` vs normal class
-
-Normal class:
-
-```python
-class Employee:
-
-    def __init__(self, name):
-        self.name = name
-
-    def show(self):
-        print(self.name)
-```
-
-Yahan:
-
-```text
-data + behavior
-```
-
-TypedDict:
-
-```python
-class EmployeeData(TypedDict):
-    name: str
-```
-
-Yahan primarily:
-
-```text
-data structure
-```
-
----
-
-# 21. Work-order example
-
-Tumhare actual data structure ko imagine karo:
-
-```python
-class WorkOrder(TypedDict):
-    work_order_number: str
-    code: str
-    description: str
-    area: str
-    floor: str
-    comment: str
-```
-
-Ab function:
+## 21. Work Order Example
 
 ```python
 def create_folder(work_order: WorkOrder) -> str:
     return work_order["work_order_number"]
 ```
 
-Type checker knows:
+**Explanation:**
+- Type checker knows structure
 
-```text
-work_order
-   ↓
-WorkOrder
-   ↓
-["work_order_number"]
-   ↓
-str
-```
-
-Isse large scripts mein typo detection better hoti hai.
-
-Example typo:
+## 22. Limitation
 
 ```python
-work_order["workorder_number"]
+employee.show()   # Methods nahi
 ```
 
-Expected key defined nahi hai.
-
----
-
-# 22. `TypedDict` ka ek important limitation
-
-Ye:
-
-```python
-class EmployeeData(TypedDict):
-    name: str
-```
-
-tumhe ye methods automatically nahi deta:
-
-```python
-employee.show()
-employee.calculate_salary()
-employee.save()
-```
-
-Kyun ke ye object-oriented class nahi.
-
-Dictionary hi hai.
-
----
-
-# 23. Runtime inspection
-
-Tum:
+## 23. Runtime Inspection
 
 ```python
 EmployeeData.__annotations__
-```
-
-se type annotations dekh sakte ho.
-
-Aur modern Python mein:
-
-```python
 EmployeeData.__required_keys__
 EmployeeData.__optional_keys__
 ```
 
-se required/optional keys inspect ki ja sakti hain.
+## 24. JSON → TypedDict
 
-Example conceptual output:
-
-```text
-__required_keys__
-{'name', 'salary'}
-
-__optional_keys__
-{'comment'}
+```
+JSON → dict → TypedDict annotation → static info
 ```
 
----
-
-# 24. JSON → TypedDict mental model
-
-API/JSON:
-
-```text
-JSON
- ↓
-dict
- ↓
-TypedDict annotation
- ↓
-static structure information
-```
-
-Important:
-
-> `TypedDict` khud JSON ko validate/convert nahi karta.
-
-Agar external data unreliable hai, runtime validation ke liye separate validation approach chahiye.
-
----
-
-# 25. Complete example
+## 25. Complete Example
 
 ```python
-from typing import TypedDict, NotRequired
-
-
 class Location(TypedDict):
     floor: str
     area: str
-
 
 class EquipmentData(TypedDict):
     equipment_id: str
@@ -7971,108 +2804,43 @@ class EquipmentData(TypedDict):
     location: Location
     temperature: NotRequired[float]
     comment: NotRequired[str]
-```
 
-Data:
-
-```python
 equipment: EquipmentData = {
     "equipment_id": "AHU-01",
     "equipment_type": "AHU",
-
     "location": {
         "floor": "34",
         "area": "Mechanical Room"
     },
-
     "temperature": 22.5
 }
 ```
 
-Structure:
+## 26. Mental Model
 
-```text
-EquipmentData
-│
-├── equipment_id → str
-├── equipment_type → str
-│
-├── location → Location
-│   ├── floor → str
-│   └── area → str
-│
-├── temperature → float      optional
-└── comment → str            optional
+```
+dict → normal
+TypedDict → structure
+Required → lazmi
+NotRequired → optional
+total=False → all optional
+Nested → structured dict
+```
+
+**Comparison:**
+```
+TypedDict → data structure
+dataclass → data + behavior
+Protocol → behavior/interface
+class → data + behavior + OOP
 ```
 
 ---
 
-# 26. Aaj ka complete mental model
+**Ab ye guide complete hai (Lessons 31-40).** Har lesson mein:
+- ✅ Code
+- ✅ Output
+- ✅ Line-by-line explanation
+- ✅ Mental models
 
-```text
-dict
-↓
-normal dictionary
-
-TypedDict
-↓
-dictionary ki expected structure
-
-Required
-↓
-key lazmi
-
-NotRequired
-↓
-key optional
-
-total=False
-↓
-normally all fields optional
-
-Nested TypedDict
-↓
-dictionary ke andar structured dictionary
-```
-
-Aur comparison:
-
-```text
-TypedDict
-→ data structure
-
-dataclass
-→ data + object behavior
-
-Protocol
-→ object behavior/interface
-
-normal class
-→ data + behavior + OOP
-```
-
-### Ek line mein:
-
-> **`TypedDict` runtime par normal `dict` hi hota hai, lekin static type checker ko batata hai ke dictionary mein kaunsi keys honi chahiye aur unki values kis type ki honi chahiye.**
-
-### Next Lesson 41
-
-Ab hum **`dataclass` deeply** karenge:
-
-```python
-@dataclass
-class Equipment:
-    equipment_id: str
-    temperature: float
-```
-
-Phir dekhenge:
-
-* `field()`
-* `default`
-* `default_factory`
-* `frozen=True`
-* `slots=True`
-* `kw_only=True`
-* `__post_init__()`
-* `dataclass` vs normal class vs `TypedDict`
+Agar kisi specific topic ko aur detail mein samjhana ho, to batao! 🚀
