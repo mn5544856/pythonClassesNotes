@@ -1496,6 +1496,8 @@ Box[Employee]  → Employee object
 
 ## 1. `TypedDict`
 
+`TypedDict` Python mein dictionary ke keys aur unki values ke expected data types define karne ke liye use hota hai. Is se type checkers ko pata chalta hai ke dictionary mein kaun se keys aur values honi chahiye.
+
 ```python
 from typing import TypedDict
 
@@ -1509,3 +1511,333 @@ employee: Employee = {
     "age": 30,
     "salary": 5000.0
 }
+
+print(employee)
+print(employee["name"])
+print(employee["age"])
+print(employee["salary"])
+```
+
+**Output:**
+
+```text
+{'name': 'Ali', 'age': 30, 'salary': 5000.0}
+Ali
+30
+5000.0
+```
+
+**Important points:**
+
+* `name: str` ka matlab name ki value string honi chahiye.
+* `age: int` ka matlab age ki value integer honi chahiye.
+* `salary: float` ka matlab salary ki value float honi chahiye.
+* `TypedDict` runtime par automatically type validation nahi karta. Is ka primary purpose static type checking hai.
+
+## 2. `Mapping`
+
+`Mapping` ek read-only interface represent karta hai jo key-value pairs ko access karne deta hai. Isay tab use karte hain jab function ko dictionary ka data read karna ho, lekin dictionary ko modify karna zaroori na ho.
+
+```python
+from typing import Mapping
+
+def show_employee(employee: Mapping[str, object]) -> None:
+    print(employee["name"])
+    print(employee["age"])
+
+data = {
+    "name": "Ali",
+    "age": 30
+}
+
+show_employee(data)
+```
+
+**Output:**
+
+```text
+Ali
+30
+```
+
+**Important points:**
+
+* `Mapping[str, object]` ka matlab string keys aur kisi bhi type ki values wali mapping.
+* `Mapping` ke through items read kiye ja sakte hain.
+* Mapping interface ke through items add, update ya delete nahi kiye ja sakte.
+* Normal `dict` object ko `Mapping` parameter ke taur par pass kiya ja sakta hai.
+
+## 3. `Sequence`
+
+`Sequence` ordered collection ko represent karta hai jiske elements ko index se access kiya ja sakta hai. Examples mein `list`, `tuple` aur `str` shamil hain.
+
+```python
+from typing import Sequence
+
+def show_items(items: Sequence[str]) -> None:
+    print("First item:", items[0])
+    print("All items:", items)
+
+fruits = ["Apple", "Banana", "Mango"]
+
+show_items(fruits)
+```
+
+**Output:**
+
+```text
+First item: Apple
+All items: ['Apple', 'Banana', 'Mango']
+```
+
+**Important points:**
+
+* `Sequence[str]` string elements wali sequence ko represent karta hai.
+* Indexing, slicing aur iteration supported hain.
+* Sequence interface ke through collection ko modify karna supported nahi hota.
+* `list` mutable hoti hai, lekin `tuple` immutable hota hai.
+
+## 4. `Iterable`
+
+`Iterable` aise object ko represent karta hai jiske elements par loop chalaya ja sakta hai, jaise `list`, `tuple`, `str` aur `set`.
+
+```python
+from typing import Iterable
+
+def print_items(items: Iterable[str]) -> None:
+    for item in items:
+        print(item)
+
+fruits = ["Apple", "Banana", "Mango"]
+
+print_items(fruits)
+```
+
+**Output:**
+
+```text
+Apple
+Banana
+Mango
+```
+
+**Important points:**
+
+* `Iterable` ko `for` loop mein use kiya ja sakta hai.
+* Har iterable index-based access support nahi karta.
+* Lists, tuples, sets aur generators iterable hote hain.
+* Iterable se iterator hasil karne ke liye `iter()` use hota hai.
+
+## 5. `Iterator`
+
+`Iterator` aisa object hai jo elements ko ek-ek karke provide karta hai. Is mein `next()` ke zariye agla element hasil kiya ja sakta hai.
+
+```python
+from typing import Iterator
+
+def count_numbers() -> Iterator[int]:
+    yield 1
+    yield 2
+    yield 3
+
+numbers = count_numbers()
+
+print(next(numbers))
+print(next(numbers))
+print(next(numbers))
+```
+
+**Output:**
+
+```text
+1
+2
+3
+```
+
+**Important points:**
+
+* `Iterator[int]` integers provide karne wale iterator ko represent karta hai.
+* `next()` agla element return karta hai.
+* Jab tamam elements khatam ho jate hain, `next()` `StopIteration` raise karta hai.
+* `yield` function ko generator banata hai, jo values ek-ek karke produce karta hai.
+
+**Example: Iterator with a loop**
+
+```python
+numbers = iter([10, 20, 30])
+
+for number in numbers:
+    print(number)
+```
+
+**Output:**
+
+```text
+10
+20
+30
+```
+
+## 6. `Callable`
+
+`Callable` aise object ko represent karta hai jise function ki tarah call kiya ja sakta hai. Is se function ke expected arguments aur return type specify kiye ja sakte hain.
+
+```python
+from typing import Callable
+
+def add(a: int, b: int) -> int:
+    return a + b
+
+def calculate(
+    operation: Callable[[int, int], int],
+    x: int,
+    y: int
+) -> int:
+    return operation(x, y)
+
+result = calculate(add, 10, 20)
+
+print(result)
+```
+
+**Output:**
+
+```text
+30
+```
+
+**Important points:**
+
+* `Callable[[int, int], int]` ka matlab aisa callable jo do integers accept kare aur integer return kare.
+* Functions ko doosre functions ke arguments ke taur par pass kiya ja sakta hai.
+* `Callable[..., int]` kisi bhi argument signature wale callable ko represent karta hai jo integer return karta hai; `...` argument types ko specify nahi karta.
+
+### Additional Example: `Callable` with Lambda
+
+```python
+from typing import Callable
+
+def apply_operation(
+    operation: Callable[[int, int], int],
+    a: int,
+    b: int
+) -> int:
+    return operation(a, b)
+
+result = apply_operation(lambda x, y: x * y, 4, 5)
+
+print(result)
+```
+
+**Output:**
+
+```text
+20
+```
+
+---
+
+## 7. Quick Comparison
+
+| Type        | Purpose                                         | Example                |
+| ----------- | ----------------------------------------------- | ---------------------- |
+| `TypedDict` | Dictionary ke keys aur value types define karna | Employee record        |
+| `Mapping`   | Key-value data ko read karna                    | Dictionary reader      |
+| `Sequence`  | Ordered, indexable collection                   | List, tuple, string    |
+| `Iterable`  | Elements par loop chalana                       | List, set, generator   |
+| `Iterator`  | Elements ek-ek karke provide karna              | `next()` aur generator |
+| `Callable`  | Function-like object ka type define karna       | Function argument      |
+
+## 8. Complete Practice Example
+
+Is example mein `TypedDict`, `Mapping`, `Sequence`, `Iterable`, `Iterator` aur `Callable` ko alag-alag functions mein use kiya gaya hai.
+
+```python
+from typing import (
+    TypedDict,
+    Mapping,
+    Sequence,
+    Iterable,
+    Iterator,
+    Callable
+)
+
+class Employee(TypedDict):
+    name: str
+    age: int
+    salary: float
+
+
+def show_employee(employee: Mapping[str, object]) -> None:
+    print("Employee:", employee["name"])
+
+
+def show_names(names: Sequence[str]) -> None:
+    print("First name:", names[0])
+
+
+def print_names(names: Iterable[str]) -> None:
+    for name in names:
+        print(name)
+
+
+def get_numbers() -> Iterator[int]:
+    yield 1
+    yield 2
+    yield 3
+
+
+def calculate(
+    operation: Callable[[int, int], int],
+    a: int,
+    b: int
+) -> int:
+    return operation(a, b)
+
+
+employee: Employee = {
+    "name": "Ali",
+    "age": 30,
+    "salary": 5000.0
+}
+
+show_employee(employee)
+
+names = ["Ali", "Ahmed", "Sara"]
+show_names(names)
+print_names(names)
+
+numbers = get_numbers()
+print(next(numbers))
+print(next(numbers))
+
+result = calculate(lambda x, y: x + y, 10, 20)
+print("Result:", result)
+```
+
+**Output:**
+
+```text
+Employee: Ali
+First name: Ali
+Ali
+Ahmed
+Sara
+1
+2
+Result: 30
+```
+
+## 9. Practice Questions
+
+1. `TypedDict` aur normal `dict` mein kya difference hai?
+2. `Mapping` aur `Sequence` mein kya difference hai?
+3. Kya har `Iterable` ek `Iterator` hota hai?
+4. `next()` ka kya purpose hai?
+5. `Callable[[int, int], int]` ka kya matlab hai?
+6. Ek `Product` naam ka `TypedDict` banayein jisme `name`, `price` aur `quantity` hon.
+7. Ek function banayein jo `Iterable[int]` accept kare aur tamam numbers ka sum return kare.
+8. Ek function banayein jo `Callable[[int, int], int]` accept kare aur do numbers par operation perform kare.
+
+**Lesson Summary:** In six typing tools ki madad se Python code ke expected data structures, iteration behavior aur function signatures ko clearly describe kiya ja sakta hai. Ye static type checking aur maintainable code likhne mein madad karte hain.
