@@ -922,55 +922,7 @@ Hello World
 
 ---
 
-# 11. Method Overriding
-
-```python
-class Animal:
-    def sound(self):
-        print("Animal sound")
-
-class Dog(Animal):
-    def sound(self):
-        print("Bark")
-
-dog = Dog()
-dog.sound()
-```
-
-**Output:**
-```
-Bark
-```
-
-**Explanation:**
-- `Dog` ne `sound()` ko override kiya
-- `dog.sound()` → child ka method chala
-
-### `super()` ke sath:
-
-```python
-class Dog(Animal):
-    def sound(self):
-        super().sound()
-        print("Bark")
-
-dog = Dog()
-dog.sound()
-```
-
-**Output:**
-```
-Animal sound
-Bark
-```
-
-**Explanation:**
-- `super().sound()` → parent ka method chala
-- `print("Bark")` → child ka additional behavior
-
----
-
-# 12. Abstraction
+# 11. Abstraction
 
 ```python
 from abc import ABC, abstractmethod
@@ -1077,44 +1029,7 @@ AHU fan stopped
 
 ---
 
-# 13. Properties — `@property`
-
-```python
-class Employee:
-    def __init__(self, salary):
-        self._salary = salary
-
-    @property
-    def salary(self):
-        return self._salary
-
-    @salary.setter
-    def salary(self, value):
-        if value < 0:
-            raise ValueError("Salary negative nahi ho sakti")
-        self._salary = value
-
-emp = Employee(5000)
-print(emp.salary)
-emp.salary = 6000
-print(emp.salary)
-```
-
-**Output:**
-```
-5000
-6000
-```
-
-**Explanation:**
-- `@property` → `salary()` method ko attribute ki tarah access
-- `emp.salary` → getter call, `5000` return
-- `@salary.setter` → setter define
-- `emp.salary = 6000` → setter call, validation pass, value set
-
----
-
-# 14. Special Methods (Dunder Methods)
+# 12. Special Methods (Dunder Methods)
 
 ## `__str__`
 
@@ -1289,7 +1204,7 @@ Hello Ali
 
 ---
 
-# 15. Composition aur Aggregation
+# 13. Composition aur Aggregation
 
 ## Composition
 
@@ -1348,7 +1263,7 @@ Ali
 
 ---
 
-# 16. Nested Classes
+# 14. Nested Classes
 
 ```python
 class Computer:
@@ -1373,7 +1288,7 @@ CPU processing
 
 ---
 
-# 17. `__dict__`
+# 15. `__dict__`
 
 ```python
 class Employee:
@@ -1399,7 +1314,7 @@ ABC
 
 ---
 
-# 18. Practical Example — Employee Management System
+# 16. Practical Example — Employee Management System
 
 ```python
 class Employee:
@@ -1458,7 +1373,7 @@ Department: HVAC
 
 ---
 
-# 19. Complete Revision Table
+# 17. Complete Revision Table
 
 | Concept | Purpose | Example |
 |---------|---------|---------|
@@ -1486,7 +1401,7 @@ Department: HVAC
 
 ---
 
-# 20. OOP ke 4 Pillars
+# 18. OOP ke 4 Pillars
 
 ```
                  OOP
@@ -1508,7 +1423,7 @@ Encapsulation  Inheritance  Polymorphism
 
 ---
 
-# 21. Learning Order
+# 19. Learning Order
 
 ```
 Step 1: Class, Object, self, __init__
